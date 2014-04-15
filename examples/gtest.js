@@ -9,6 +9,11 @@ var dateLines = [
 	{"date":new Date(2014,1,10),"style":"stroke:rgb(120,120,0);stroke-width:2"}                
 ]
 
+var mileStones = [
+{"date":new Date(2014,7),"taskName":"E Job", "label":"deployment 1"},
+{"date":new Date(2014,13),"taskName":"E Job", "label":"deployment 2"}
+];
+
 
 var taskStatus = {
     "SUCCEEDED" : "bar",
@@ -44,7 +49,7 @@ gantt.margin(margin);
 gantt.timeDomainMode("fixed");
 changeTimeDomain(timeDomainString);
 
-gantt(tasks,dateLines);
+gantt(tasks,dateLines, mileStones);
 
 function changeTimeDomain(timeDomainString) {
     this.timeDomainString = timeDomainString;

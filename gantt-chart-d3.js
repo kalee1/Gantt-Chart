@@ -88,11 +88,21 @@ d3.gantt = function() {
     /**
      * initial drawing
      */
-    function gantt(tasks, dateLines) {
+    function gantt(tasks, dateLines, mileStones) {
 		
 		initTimeDomain(tasks);
 		initAxis();
-		
+
+		// render data visualization
+		drawTasks(tasks);
+		drawDateLines(dateLines);
+		drawMilestones(mileStones);
+
+		return gantt;
+
+    };
+
+	var drawTasks = function (tasks){
 		var chartGroup = d3.select("body")
 		.append("svg")
 		.attr("class", "chart")
@@ -144,14 +154,8 @@ d3.gantt = function() {
 		 .transition()
 		 .call(xAxis);
 		 
-		chartGroup.append("g").attr("class", "y axis").transition().call(yAxis);
-		 
-		// draw datelines
-		drawDateLines(dateLines);
-		
-		return gantt;
-
-    };
+		chartGroup.append("g").attr("class", "y axis").transition().call(yAxis);    	
+    }
 
     /**
      * rerenders data
