@@ -28,7 +28,9 @@ d3.gantt = function() {
     };
 
     var rectTransform = function(d) {
-	return "translate(" + x(d.startDate) + "," + y(d.taskName) + ")";
+    	var xpos = x(d.startDate)
+    	var ypos = y(d.taskName);
+    	return "translate(" + xpos + "," + ypos + ")";
     };
 
     var x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
@@ -67,90 +69,141 @@ d3.gantt = function() {
 	yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
     };
     
-    function gantt(tasks) {
-	
-	initTimeDomain(tasks);
-	initAxis();
-	
-	var svg = d3.select("body")
-	.append("svg")
-	.attr("class", "chart")
-	.attr("width", width + margin.left + margin.right)
-	.attr("height", height + margin.top + margin.bottom)
-	.append("g")
-        .attr("class", "gantt-chart")
-	.attr("width", width + margin.left + margin.right)
-	.attr("height", height + margin.top + margin.bottom)
-	.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
-	
-      svg.selectAll(".chart")
-	 .data(tasks, keyFunction).enter()
-	 .append("rect")
-	 .attr("rx", 5)
-         .attr("ry", 5)
-	 .attr("class", function(d){ 
-	     if(taskStatus[d.status] == null){ return "bar";}
-	     return taskStatus[d.status];
-	     }) 
-	 .attr("y", 0)
-	 .attr("transform", rectTransform)
-	 .attr("height", function(d) { return y.rangeBand(); })
-	 .attr("width", function(d) { 
-	     return (x(d.endDate) - x(d.startDate)); 
-	     });
-	 
-	 
-	 svg.append("g")
-	 .attr("class", "x axis")
-	 .attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")")
-	 .transition()
-	 .call(xAxis);
-	 
-	 svg.append("g").attr("class", "y axis").transition().call(yAxis);
-	 
-	 return gantt;
+    /**
+     * draws datelines on svg canvas
+     */
+    var drawDateLines = function (dateLines){
+		var chartGroup = d3.select(".gantt-bars");
+		
+    	chartGroup.selectAll("line").data(dateLines,function(d) { return d.date; })
+    		.enter()
+    		.append("line")
+    		.attr("x1",function (d) { return x(d.date);})
+    		.attr("y1","0")
+    		.attr("x2",function (d) { return x(d.date);})
+    		.attr("y2",height)
+    		.attr("style",function (d) { return d.style;});
+    }
+    
+    /**
+     * initial drawing
+     */
+    function gantt(tasks, dateLines) {
+		
+		initTimeDomain(tasks);
+		initAxis();
+		
+		var chartGroup = d3.select("body")
+		.append("svg")
+		.attr("class", "chart")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+	        .attr("class", "gantt-chart")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+		.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+		
+		var barGroup = chartGroup.append("g").attr("class", "gantt-bars");
+		
+		var taskGSelection = barGroup.selectAll("g").data(tasks, keyFunction);
+		var group = taskGSelection.enter().append("g").attr("rx", 5)
+	    .attr("ry", 5)
+		 .attr("class", function(d){ 
+		     if(taskStatus[d.status] == null){ return "bar";}
+		     return taskStatus[d.status];
+		     }) 
+		 .attr("y", 0)
+		 .attr("transform", rectTransform)
+		 .attr("height", function(d) { return y.rangeBand(); })
+		 .attr("width", function(d) { 
+		     return (x(d.endDate) - x(d.startDate)); 
+		     });
+		// add bar's rect
+		group.append("rect").attr("rx", 5)
+	    .attr("ry", 5)
+		 .attr("class", function(d){ 
+		     if(taskStatus[d.status] == null){ return "bar";}
+		     return taskStatus[d.status];
+		     }) 
+		 .attr("y", 0)
+		 .attr("height", function(d) { return y.rangeBand(); })
+		 .attr("width", function(d) { 
+		     return (x(d.endDate) - x(d.startDate)); 
+		     });
+		// add labels
+		group.append("text")
+			.attr("y", function(d) { return y.rangeBand()/2; })
+			.attr("x", function(d) { return 5; })
+			.attr("fill","black")
+			.text(function(d){ return d.label;})
+		 
+		chartGroup.append("g")
+		 .attr("class", "x axis")
+		 .attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")")
+		 .transition()
+		 .call(xAxis);
+		 
+		chartGroup.append("g").attr("class", "y axis").transition().call(yAxis);
+		 
+		// draw datelines
+		drawDateLines(dateLines);
+		
+		return gantt;
 
     };
-    
-    gantt.redraw = function(tasks) {
 
-	initTimeDomain(tasks);
-	initAxis();
+    /**
+     * rerenders data
+     */
+    gantt.redraw = function(tasks,datelines) {
+
+		initTimeDomain(tasks);
+		initAxis();
+		
+	    var svg = d3.select("svg");
+		var chartGroup = svg.select(".gantt-chart");
+		var barGroup =  chartGroup.select(".gantt-bars");
+		var taskGSelection = barGroup.selectAll("g").data(tasks,keyFunction);
 	
-        var svg = d3.select("svg");
-
-        var ganttChartGroup = svg.select(".gantt-chart");
-        var rect = ganttChartGroup.selectAll("rect").data(tasks, keyFunction);
-        
-        rect.enter()
-         .insert("rect",":first-child")
-         .attr("rx", 5)
-         .attr("ry", 5)
-	 .attr("class", function(d){ 
-	     if(taskStatus[d.status] == null){ return "bar";}
-	     return taskStatus[d.status];
-	     }) 
-	 .transition()
-	 .attr("y", 0)
-	 .attr("transform", rectTransform)
-	 .attr("height", function(d) { return y.rangeBand(); })
-	 .attr("width", function(d) { 
-	     return (x(d.endDate) - x(d.startDate)); 
-	     });
-
-        rect.transition()
-          .attr("transform", rectTransform)
-	 .attr("height", function(d) { return y.rangeBand(); })
-	 .attr("width", function(d) { 
-	     return (x(d.endDate) - x(d.startDate)); 
-	     });
-        
-	rect.exit().remove();
-
-	svg.select(".x").transition().call(xAxis);
-	svg.select(".y").transition().call(yAxis);
+		 var group = taskGSelection.enter()
+		 .append("g")
+		 .attr("rx", 5)
+	     .attr("ry", 5)
+		 .attr("class", function(d){ 
+		     if(taskStatus[d.status] == null){ return "bar";}
+		     return taskStatus[d.status];
+		     }) 
+		 .attr("y", 0)
+		 .attr("height", function(d) { return y.rangeBand(); })
+		 .attr("width", function(d) { 
+		     return (x(d.endDate) - x(d.startDate)); 
+		     });
+		
+		// add rect
+		group.append("rect").attr("rx", 5)
+	    .attr("ry", 5)
+		 .attr("class", function(d){ 
+		     if(taskStatus[d.status] == null){ return "bar";}
+		     return taskStatus[d.status];
+		     }) 
+		 .attr("y", 0)
+		 .attr("height", function(d) { return y.rangeBand(); })
+		 .attr("width", function(d) { 
+		     return (x(d.endDate) - x(d.startDate)); 
+		     });
+		// add text
+		group.append("text").text(function(d){ return d.label;})  
 	
-	return gantt;
+		// update all g's position
+		taskGSelection.attr("transform", rectTransform)
+	
+		taskGSelection.exit().remove();
+	
+		svg.select(".x").transition().call(xAxis);
+		svg.select(".y").transition().call(yAxis);
+		
+		return gantt;
     };
 
     gantt.margin = function(value) {
