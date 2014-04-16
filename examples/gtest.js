@@ -1,17 +1,18 @@
 var tasks = [
-{"startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"taskName":"E Job","status":"RUNNING", "label":"task1"},
-{"startDate":new Date(2014,1,6),"endDate":new Date(2014,1,8),"taskName":"E Job","status":"RUNNING", "label":"task2"},
-{"startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"taskName":"E Job","status":"RUNNING", "label":"task3"}
+{"startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"taskName":"E Job","status":"RUNNING", "label":"task1","pos":20},
+{"startDate":new Date(2014,1,4),"endDate":new Date(2014,1,8),"taskName":"E Job","status":"RUNNING", "label":"task2","pos":40},
+{"startDate":new Date(2014,1,7),"endDate":new Date(2014,1,8),"taskName":"E Job","status":"RUNNING", "label":"task2.1","pos":80},
+{"startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"taskName":"E Job","status":"RUNNING", "label":"task3","pos":100}
 ];
 
 var dateLines = [
 	{"date":new Date(2014,1,8),"style":"stroke:rgb(255,0,0);stroke-width:2"},                
-	{"date":new Date(2014,1,10),"style":"stroke:rgb(120,120,0);stroke-width:2"}                
+	{"date":new Date(2014,1,12),"style":"stroke:rgb(120,120,0);stroke-width:2"}                
 ]
 
 var mileStones = [
-{"date":new Date(2014,7),"taskName":"E Job", "label":"deployment 1"},
-{"date":new Date(2014,13),"taskName":"E Job", "label":"deployment 2"}
+{"id": 1, "date":new Date(2014,1,7),"taskName":"E Job", "label":"deployment 1"},
+{"id": 2,"date":new Date(2014,1,3),"taskName":"N Job", "label":"deployment 2"}
 ];
 
 
@@ -126,3 +127,21 @@ function removeTask() {
     changeTimeDomain(timeDomainString);
     gantt.redraw(tasks);
 };
+
+
+
+var svg = d3.select("svg");
+svg.selectAll("circle").data(tasks, function (d) { return d.label + "ssss";}).enter().append("circle")
+            .attr("cx",function(d){ return 30 + d.pos;})
+            .attr("cy",130)
+            .attr("r",10)
+            .attr("stroke","black")
+            .attr("stroke-width","3");
+svg.selectAll("circle").data(tasks, function (d) { return d.label+ "ssss";})
+            .transition()
+            .attr("stroke","red");
+
+
+svg.selectAll("circle").data([ tasks[2] ], function (d) { return d.label+ "ssss";})
+            .transition()
+            .attr("stroke","blue");

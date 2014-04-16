@@ -24,11 +24,20 @@ d3.gantt = function() {
     var tickFormat = "%H:%M";
 
     var keyFunction = function(d) {
-	return d.startDate + d.taskName + d.endDate;
+	return "T" + d.startDate + d.taskName + d.endDate;
     };
+    var mskeyFunction = function(d){
+    	return d.id;
+    }
 
     var rectTransform = function(d) {
     	var xpos = x(d.startDate)
+    	var ypos = y(d.taskName);
+    	return "translate(" + xpos + "," + ypos + ")";
+    };
+
+    var mileStoneTransform = function(d) {
+    	var xpos = x(d.date)
     	var ypos = y(d.taskName);
     	return "translate(" + xpos + "," + ypos + ")";
     };
@@ -68,7 +77,35 @@ d3.gantt = function() {
 
 	yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
     };
+
+    var axisTransition = function(){
+		var chartGroup = d3.select(".gantt-chart");
+		chartGroup.append("g")
+		 .attr("class", "x axis")
+		 .attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")")
+		 .transition()
+		 .call(xAxis);
+		 
+		chartGroup.append("g").attr("class", "y axis").transition().call(yAxis);        		    	
+
+    }
     
+
+    var initChartCanvas = function (){
+		var chartGroup = d3.select("body")
+			.append("svg")
+			.attr("class", "chart")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+			.attr("class", "gantt-chart")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+		
+		var barGroup = chartGroup.append("g").attr("class", "gantt-bars");
+    }
+
     /**
      * draws datelines on svg canvas
      */
@@ -85,38 +122,49 @@ d3.gantt = function() {
     		.attr("style",function (d) { return d.style;});
     }
     
-    /**
-     * initial drawing
-     */
-    function gantt(tasks, dateLines, mileStones) {
+    var drawMilestones = function (mileStones){
+
+		var svg = d3.select("svg");
+		var chartGroup = svg.select(".gantt-chart");
+		var barGroup =  chartGroup.select(".gantt-bars");
+
+		var taskGSelection = barGroup.selectAll("g.mileStone").data(mileStones,keyFunction);
 		
-		initTimeDomain(tasks);
-		initAxis();
+		var group = taskGSelection.enter().append("g")
+			.attr("rx", 5)
+	    	.attr("ry", 5)
+		 	.attr("class", "mileStone") 
+		 	.attr("y", 0)
+		 	.attr("transform", mileStoneTransform)
+			.attr("height", 30)
+			.attr("width", 30);
 
-		// render data visualization
-		drawTasks(tasks);
-		drawDateLines(dateLines);
-		drawMilestones(mileStones);
+		// add milestone mark
+		var radius = 2;
+    	group.append("circle")
+    		.attr("cx",0)
+    		.attr("cy",y.rangeBand())
+    		.attr("r",radius)
+    		.attr("stroke","black")
+    		.attr("stroke-width","3");
 
-		return gantt;
-
-    };
-
+		// add labels
+		group.append("text")
+			.attr("y", function(d) { return y.rangeBand()+radius})
+			.attr("x",  radius*2)
+			.attr("fill","black")
+			.text(function(d){ return d.label;})
+		 
+		
+    }
+    
 	var drawTasks = function (tasks){
-		var chartGroup = d3.select("body")
-		.append("svg")
-		.attr("class", "chart")
-		.attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom)
-		.append("g")
-	        .attr("class", "gantt-chart")
-		.attr("width", width + margin.left + margin.right)
-		.attr("height", height + margin.top + margin.bottom)
-		.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
-		
-		var barGroup = chartGroup.append("g").attr("class", "gantt-bars");
-		
-		var taskGSelection = barGroup.selectAll("g").data(tasks, keyFunction);
+
+		var svg = d3.select("svg");
+		var chartGroup = svg.select(".gantt-chart");
+		var barGroup =  chartGroup.select(".gantt-bars");
+		var taskGSelection = barGroup.selectAll("g").data(tasks,keyFunction);
+
 		var group = taskGSelection.enter().append("g").attr("rx", 5)
 	    .attr("ry", 5)
 		 .attr("class", function(d){ 
@@ -148,15 +196,72 @@ d3.gantt = function() {
 			.attr("fill","black")
 			.text(function(d){ return d.label;})
 		 
-		chartGroup.append("g")
-		 .attr("class", "x axis")
-		 .attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")")
-		 .transition()
-		 .call(xAxis);
-		 
-		chartGroup.append("g").attr("class", "y axis").transition().call(yAxis);    	
+		
     }
 
+	function checkOverlapping(element, index, array) {
+		var overlappedTask = [];
+		if (index == 0){
+			return;
+		}
+	    var barGroup = d3.select(".gantt-bars").selectAll("g")
+
+		// check if any previous elements contains element.startDate
+		for (i=0; i<index; i++){
+			if(array[i].endDate >= element.startDate ){
+				// get overlapped position
+				var overlapped = barGroup.data([array[i]]);
+
+				var tfrm = overlapped.attr("transform");
+
+				var pos_init = tfrm.indexOf("(");
+				var pos_comma = tfrm.indexOf(",");
+				var pos_end = tfrm.indexOf(")");
+				var posX = tfrm.substring(pos_init+1, pos_comma);
+				var posY = tfrm.substring(pos_comma+1, pos_end);
+				// task are overlapped, find svg element
+				var translation = "translate(" + posX + "," + (parseInt(posY) +20) + ")";
+				group = barGroup.data([element], keyFunction)
+				alert("padre: " + tfrm + " \nhijo: " + translation)
+				group.attr("transform", translation);
+
+			}
+
+		}
+	}
+
+
+	var treatOverlapping = function (tasks){
+		// go through task and resolve overlapping moving task
+		//tasks.forEach(checkOverlapping)
+		var i = 0;
+		for (t in tasks){
+			checkOverlapping(t,i, tasks);
+			i++;
+		}
+	}
+
+	/**
+     * initial drawing
+     */
+    function gantt(tasks, dateLines, mileStones) {
+		
+		initTimeDomain(tasks);
+		initAxis();
+		
+		initChartCanvas();
+
+		// render data visualization
+		drawTasks(tasks);
+		drawDateLines(dateLines);
+		drawMilestones(mileStones);
+		treatOverlapping(tasks);
+
+		axisTransition();
+
+		return gantt;
+
+    };
     /**
      * rerenders data
      */
