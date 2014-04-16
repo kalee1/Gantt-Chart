@@ -20,6 +20,8 @@ d3.gantt = function() {
     var taskStatus = [];
     var height = document.body.clientHeight - margin.top - margin.bottom-5;
     var width = document.body.clientWidth - margin.right - margin.left-5;
+    var barHeight = 15;
+    var barPadding = 5
 
     var tickFormat = "%H:%M";
 
@@ -39,6 +41,7 @@ d3.gantt = function() {
     var mileStoneTransform = function(d) {
     	var xpos = x(d.date)
     	var ypos = y(d.taskName);
+//    	return "translate(" + xpos + "," + ypos + ")";
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
@@ -79,6 +82,7 @@ d3.gantt = function() {
     };
 
     var axisTransition = function(){
+    	// build x and y axis using d3 scales
 		var chartGroup = d3.select(".gantt-chart");
 		chartGroup.append("g")
 		 .attr("class", "x axis")
@@ -88,6 +92,10 @@ d3.gantt = function() {
 		 
 		chartGroup.append("g").attr("class", "y axis").transition().call(yAxis);        		    	
 
+		// resize y_axis using group tasks
+		var xAxisGroup = charGroup.selectAll("g")
+		// foeach scale, check bar size
+		
     }
     
 
@@ -185,7 +193,7 @@ d3.gantt = function() {
 		     return taskStatus[d.status];
 		     }) 
 		 .attr("y", 0)
-		 .attr("height", function(d) { return y.rangeBand(); })
+		 .attr("height", function(d) { return barHeight; })
 		 .attr("width", function(d) { 
 		     return (x(d.endDate) - x(d.startDate)); 
 		     });
@@ -199,32 +207,40 @@ d3.gantt = function() {
 		
     }
 
-	function checkOverlapping(element, index, array) {
+    var getGroupPosition = function(groupNode){
+    	var tfrm = groupNode.attr("transform");
+
+		var pos_init = tfrm.indexOf("(");
+		var pos_comma = tfrm.indexOf(",");
+		var pos_end = tfrm.indexOf(")");
+		var posX = tfrm.substring(pos_init+1, pos_comma);
+		var posY = tfrm.substring(pos_comma+1, pos_end);
+
+		return {"x":parseInt(posX), "y": parseInt(posY)}
+    } 
+
+	var checkOverlapping = function(element, index, array) {
 		var overlappedTask = [];
 		if (index == 0){
 			return;
 		}
-	    var barGroup = d3.select(".gantt-bars").selectAll("g")
 
+		var barGroup = d3.select(".gantt-bars").selectAll("g")
 		// check if any previous elements contains element.startDate
-		for (i=0; i<index; i++){
+		for (i=index-1; i>=0; i--){
 			if(array[i].endDate >= element.startDate ){
 				// get overlapped position
-				var overlapped = barGroup.data([array[i]]);
+				var overlapped = barGroup.data([array[i]], keyFunction);
+				var group = barGroup.data([element], keyFunction)
 
-				var tfrm = overlapped.attr("transform");
+				var overlappedPos = getGroupPosition(overlapped)
+				var currentPos = getGroupPosition(group)
 
-				var pos_init = tfrm.indexOf("(");
-				var pos_comma = tfrm.indexOf(",");
-				var pos_end = tfrm.indexOf(")");
-				var posX = tfrm.substring(pos_init+1, pos_comma);
-				var posY = tfrm.substring(pos_comma+1, pos_end);
 				// task are overlapped, find svg element
-				var translation = "translate(" + posX + "," + (parseInt(posY) +20) + ")";
-				group = barGroup.data([element], keyFunction)
-				alert("padre: " + tfrm + " \nhijo: " + translation)
+				var translation = "translate(" + currentPos.x + "," + (overlappedPos.y + barHeight + barPadding) + ")";
+				//alert("overlapped task: " + array[i].label + " " + overlappedPos.x + ","+ overlappedPos.y + "\noverlapping task: " + element.label + " " + translation)
 				group.attr("transform", translation);
-
+				return
 			}
 
 		}
@@ -236,7 +252,7 @@ d3.gantt = function() {
 		//tasks.forEach(checkOverlapping)
 		var i = 0;
 		for (t in tasks){
-			checkOverlapping(t,i, tasks);
+			checkOverlapping(tasks[i],i, tasks);
 			i++;
 		}
 	}
