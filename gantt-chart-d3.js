@@ -93,9 +93,38 @@ d3.gantt = function() {
 		chartGroup.append("g").attr("class", "y axis").transition().call(yAxis);        		    	
 
 		// resize y_axis using group tasks
-		var xAxisGroup = charGroup.selectAll("g")
+		var xAxisGroup = chartGroup.selectAll("g")
 		// foeach scale, check bar size
-		
+
+		for(t in taskTypes){
+			var type = taskTypes[t]
+			var searchFunctor = function(d){return (d.taskName == type);};
+			var taskList = tasks.filter(searchFunctor);
+			if(taskList != null && taskList.length > 0){
+				calculateSize(taskList);
+			}
+		}
+
+
+
+    }
+	/* calculates bar sizes */
+    var calculateSize = function(taskList){
+    	// get related "g" elements to tasks
+
+		var svg = d3.select("svg");
+		var chartGroup = svg.select(".gantt-chart");
+		var barGroup =  chartGroup.select(".gantt-bars");
+		var taskGSelection = barGroup.selectAll("g").data(taskList,keyFunction);
+    	alert(taskGSelection)
+    	var yposAccessor = function(d) {  var pos = getGroupPosition(d); return pos.y; }
+
+    	
+    	var max = d3.max(taskGSelection,yposAccessor)
+    	var min = d3.min(taskGSelection,yposAccessor)
+
+    	alert(max +" " + min)
+    	return max - min;
     }
     
 
