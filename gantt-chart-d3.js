@@ -18,6 +18,9 @@ d3.gantt = function() {
     var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
     var taskTypes = [];
     var taskStatus = [];
+    var tasks = [];
+    var mileStones = [];
+    var dateLines = [];
     var height = document.body.clientHeight - margin.top - margin.bottom-5;
     var width = document.body.clientWidth - margin.right - margin.left-5;
     var barHeight = 15;
@@ -73,12 +76,12 @@ d3.gantt = function() {
     };
 
     var initAxis = function() {
-	x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
-	y = d3.scale.ordinal().domain(taskTypes).rangeRoundBands([ 0, height - margin.top - margin.bottom ], .1);
-	xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
-		.tickSize(8).tickPadding(8);
+		x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
+		y = d3.scale.ordinal().domain(taskTypes).rangeRoundBands([ 0, height - margin.top - margin.bottom ], .1);
+		xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
+			.tickSize(8).tickPadding(8);
 
-	yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
+		yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
     };
 
     var axisTransition = function(){
@@ -422,7 +425,116 @@ d3.gantt = function() {
 	return gantt;
     };
 
+    gantt.tasks = function(value){
+		if (!arguments.length)
+		    return tasks;
+		tasks = value;
+		return gantt;
+	};
 
-    
+    gantt.mileStones = function(value){
+		if (!arguments.length)
+		    return mileStones;
+		mileStones = value;
+		return gantt;
+	};
+
+    gantt.dateLines = function(value){
+		if (!arguments.length)
+		    return dateLines;
+		dateLines = value;
+		return gantt;
+	};
+
     return gantt;
 };
+
+
+
+d3.overlappingResolver = function(){
+	var categories = [];
+	var tasks = [];
+	var range = [0,200];
+	/* registers overlaps between tasks. Each item relates task's 
+		id with an array containg overlapping tasks id*/
+	var overlaps = [];
+
+	overlappingResolver.categories = function(values){
+		if (!arguments.length)
+		    return categories;
+		categories = value;
+		return overlappingResolver;
+	};
+
+
+	overlappingResolver.tasks = function(value){
+		if (!arguments.length)
+		    return tasks;
+		tasks = value;
+		return overlappingResolver;
+	};
+
+	overlappingResolver.rangeBands = function (range){
+		if (!arguments.length)
+		    return range;
+		range = value;
+		return overlappingResolver;
+	};
+
+	overlappingResolver.overlaps = function (range){
+	    return overlaps;
+	};
+
+
+
+	var addOverlap = function (overlappingTask, overlappedTask){
+		if(overlaps[overlappingTask.id] == null){
+			overlaps[overlappingTask.id] = [];
+		}
+		overlaps[overlappingTask.id].push(overlappedTask.id);
+	};
+
+
+	overlappingResolver.calculateOverlapping = function (){
+		// for each category go trought tasks and populate overlaps array
+		for (var i = 0; i < categories; i++) {
+			calculateCategoryOverlapping(categories[i]);
+		}
+	};
+
+	var calculateCategoryOverlapping = function(category){
+		var searchFunctor = function(d){return (d.taskName == category);};
+		var taskList = tasks.filter(searchFunctor);
+		if(taskList != null && taskList.length > 0){
+			for (var t = 0; t < taskList.length; t++){
+				checkOverlapping(taskList[t],t, taskList);
+				t++;
+			}
+		}
+	};
+	
+	var checkOverlapping = function(element, index, array) {
+		if (index == 0){
+			return;
+		}
+		// check if any previous elements contains element.startDate
+		for (i=index-1; i>=0; i--){
+			if(element.startDate < array[i].endDate){
+				// current task overlaps in array[i] task
+				addOverlap(element, array[i])
+			}
+		}
+	};
+	/**
+     * initial drawing
+     */
+    function overlappingResolver(tasks, dateLines, mileStones) {
+
+
+		return overlappingResolver;
+
+    };
+};
+
+
+

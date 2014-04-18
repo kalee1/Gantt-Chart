@@ -1,9 +1,9 @@
 var tasks = [
-{"startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"taskName":"E Job","status":"RUNNING", "label":"task1","pos":20},
-{"startDate":new Date(2014,1,3),"endDate":new Date(2014,1,5),"taskName":"E Job","status":"RUNNING", "label":"task1.1","pos":30},
-{"startDate":new Date(2014,1,4),"endDate":new Date(2014,1,8),"taskName":"E Job","status":"RUNNING", "label":"task2","pos":40},
-{"startDate":new Date(2014,1,7),"endDate":new Date(2014,1,8),"taskName":"E Job","status":"RUNNING", "label":"task2.1","pos":80},
-{"startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"taskName":"E Job","status":"RUNNING", "label":"task3","pos":100}
+{"id": 1,"startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"taskName":"E Job","status":"RUNNING", "label":"task1","pos":20},
+{"id": 2,"startDate":new Date(2014,1,3),"endDate":new Date(2014,1,5),"taskName":"E Job","status":"RUNNING", "label":"task1.1","pos":30},
+{"id": 3,"startDate":new Date(2014,1,4),"endDate":new Date(2014,1,8),"taskName":"E Job","status":"RUNNING", "label":"task2","pos":40},
+{"id": 4,"startDate":new Date(2014,1,7),"endDate":new Date(2014,1,8),"taskName":"E Job","status":"RUNNING", "label":"task2.1","pos":80},
+{"id": 5,"startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"taskName":"E Job","status":"RUNNING", "label":"task3","pos":100}
 ];
 
 var dateLines = [
@@ -39,6 +39,12 @@ var format = "%B" //"%H:%M";
 var timeDomainString = "1month";
 
 var gantt = d3.gantt().taskTypes(taskNames).taskStatus(taskStatus).tickFormat(format);
+
+var overlappingResolver = d3.overlappingResolver();
+var overlaps = overlappingResolver.tasks(tasks);
+alert(overlaps)
+
+
 
 var margin = {
      top : 20,
