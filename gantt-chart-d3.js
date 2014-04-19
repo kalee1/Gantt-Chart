@@ -28,6 +28,7 @@ d3.gantt = function() {
 
     //
     var overlappingResolver = d3.overlappingResolver();
+    var categoryAxisRenderer = d3.categoryAxisRenderer();
 
     var tickFormat = "%H:%M";
 
@@ -42,7 +43,7 @@ d3.gantt = function() {
     	var numParallelTask = overlappingResolver.taskTotalOverlaps(d).length;
 
     	var xpos = x(d.startDate)
-    	var ypos = y(d.category) + (barHeight*numParallelTask + barPadding);
+    	var ypos = y(d.category) + numParallelTask*(barHeight + barPadding);
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
@@ -87,6 +88,8 @@ d3.gantt = function() {
 			.tickSize(8).tickPadding(8);
 
 		yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
+
+		categoryAxisRenderer.domain(categories).overlappingResolver(overlappingResolver).initAxis();
     };
 
     var axisTransition = function(){
@@ -112,8 +115,6 @@ d3.gantt = function() {
 				calculateSize(taskList);
 			}
 		}
-
-
 
     }
 	/* calculates bar sizes */
@@ -295,7 +296,7 @@ d3.gantt = function() {
      * initial drawing
      */
     function gantt(tasks, dateLines, mileStones) {
-    	overlappingResolver.tasks(tasks);
+    	overlappingResolver.tasks(tasks).calculateOverlapping();
 		
 		initTimeDomain(tasks);
 		initAxis();
@@ -434,7 +435,7 @@ d3.gantt = function() {
 		if (!arguments.length)
 		    return tasks;
 		tasks = value;
-		overlappingResolver.tasks(value);
+		overlappingResolver.tasks(value).calculateOverlapping();
 		return gantt;
 	};
 
@@ -456,11 +457,111 @@ d3.gantt = function() {
 		return overlappingResolver;
 	}
 
+	gantt.categoryAxisRenderer = function(){
+		return categoryAxisRenderer;
+	};
+
     return gantt;
 };
 
 
 d3.categoryAxisRenderer = function(){
+	var overlappingResolver;
+	var scale = 1;
+	var categories = [];
+	/* Each position stores an array with two items, tasksBand_height and milestonesBand_height*/
+	var categoriesRanges = {};
+
+	var config = {
+		"barHeight" : 15,
+		"barPadding" : 5,
+		"barMargin" : 5,
+		"minTaskBandHeight": 15,
+		"mileStoneMargin" : 5,
+		"mileStoneRadio" : 5
+	};
+
+	/* Calculates categories ranges */
+	categoryAxisRenderer.initAxis  = function(){{
+		var ini = 0;
+		var end = 0;
+		var category;
+		for (var c=0; c < categories.length; c++){
+			category = categories[c];
+			var taskBandH = calculateTaskBandHeight(c);
+			var msBandH = calculateMilestoneBandHeight(c);
+			end = ini + taskBandH + msBandH;
+
+			categoriesRanges[category] = { "taskIni": ini, "taskEnd": taskBandH, "mStoneIni": taskBandH,  "mStoneEnd": end } ;
+			ini = end;
+		}
+	}
+
+	var calculateTaskBandHeight = function(category){
+		var numPararellTasks = overlappingResolver.categoryMaxOverlaps(category);
+		if (numPararellTasks == 0){
+			return config["minTaskBandHeight"]:
+		} else {
+			return config.barMargin + (numPararellTasks-1)*(config.barHeight + config.barPadding) + config.barHeight;
+		}
+	}
+
+	var calculateMilestoneBandHeight = function(category){
+		return 20;
+	}
+
+	categoryAxisRenderer.getCategoryRange  = function(category){
+		var init = categoriesRanges[category].taskIni;
+		var end = categoriesRanges[category].mStoneEnd;
+		return [init,end];
+	}
+
+	categoryAxisRenderer.getCategoryTasksRange  = function(category){
+		var init = categoriesRanges[category].taskIni;
+		var end = categoriesRanges[category].taskEnd;
+		return [init,end];
+	}
+
+	categoryAxisRenderer.getCategoryMileStonesRange  = function(category){
+		var init = categoriesRanges[category].mStoneIni;
+		var end = categoriesRanges[category].mStoneEnd;
+		return [init,end];
+	}
+
+	categoryAxisRenderer.overlappingResolver = function(value) {
+		if (!arguments.length)
+		    return overlappingResolver;
+		overlappingResolver = value;
+		return categoryAxisRenderer;
+    };
+
+	categoryAxisRenderer.categories = function(value) {
+		if (!categories.length)
+		    return scale;
+		categories = value;
+		return categoryAxisRenderer;
+    };
+
+	categoryAxisRenderer.scale = function(value) {
+		if (!arguments.length)
+		    return scale;
+		scale = value;
+		return categoryAxisRenderer;
+    };
+	categoryAxisRenderer.config = function(value) {
+		if (!arguments.length)
+		    return config;
+		// copy values in config object
+		for(var k in config) config[k]=value[k];
+		return categoryAxisRenderer;
+    };
+
+	categoryAxisRenderer.configValue = function(property, value) {
+		config[property]=value;
+		return categoryAxisRenderer;
+    };
+
+
 	var categoryAxisRenderer = function (){
 
 	};
@@ -492,6 +593,23 @@ d3.overlappingResolver = function(){
 		return overlappingResolver;
 	};
 
+	/* Calculates de máx num of parallel task in a category */
+	overlappingResolver.categoryMaxOverlaps = function (category){
+		var maxParallel = 0;
+		// get category tasks
+		var searchFunctor = function(d){return (d.category == category);};
+		var taskList = tasks.filter(searchFunctor);
+
+		var numParallel = 0;
+		for (var t=0; t< taskList.length; t++){
+			numParallel = overlappingResolver.taskTotalOverlaps(taskList[t]).length;
+			if(numParallel > maxParallel){
+				maxParallel = numParallel;
+			}
+		}
+	    return maxParallel;
+	};
+
 	/* get num of overlaps of current tasks*/
 	overlappingResolver.taskOverlaps = function (task){
 	    return overlaps[task.id];
@@ -500,13 +618,11 @@ d3.overlappingResolver = function(){
 	/* get num of overlaps of current tasks joined with overlaps of overlapped tasks. */
 	overlappingResolver.taskTotalOverlaps = function (task){
 		var olp = [];
-		alert("buscando: " + task.id)
 		deepSearch(task.id, olp);
 
 		var uniqueValues = olp.filter(function(elem, pos) {
 		    return olp.indexOf(elem) == pos;
 		});
-		alert("encontrado: " + uniqueValues)
 	    return uniqueValues;
 	};
 
@@ -569,9 +685,6 @@ d3.overlappingResolver = function(){
 	        (!(prop in proto) || proto[prop] !== obj[prop]);
 	};
 
-	/**
-     * initial drawing
-     */
     function overlappingResolver() {
 		return overlappingResolver;
     };

@@ -44,6 +44,7 @@ var ovr = d3.overlappingResolver();
 var overlaps = ovr.tasks(tasks).categories(categories).calculateOverlapping().taskTotalOverlaps(tasks[2]);
 
 
+
 var margin = {
      top : 20,
      right : 40,
@@ -56,6 +57,11 @@ gantt.timeDomainMode("fixed");
 changeTimeDomain(timeDomainString);
 
 gantt(tasks,dateLines, mileStones);
+
+aRenderer = gantt.categoryAxisRenderer();
+
+aRenderer.getCategoryRange(categories[2]);
+aRenderer.getCategoryRange(categories[3]);
 
 function changeTimeDomain(timeDomainString) {
     this.timeDomainString = timeDomainString;
