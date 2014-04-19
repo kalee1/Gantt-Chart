@@ -41,9 +41,7 @@ var timeDomainString = "1month";
 var gantt = d3.gantt().categories(categories).taskStatus(taskStatus).tickFormat(format);
 
 var ovr = d3.overlappingResolver();
-var overlaps = ovr.tasks(tasks).categories(categories).calculateOverlapping().taskOverlaps(tasks[2]);
-alert(overlaps)
-
+var overlaps = ovr.tasks(tasks).categories(categories).calculateOverlapping().taskTotalOverlaps(tasks[2]);
 
 
 var margin = {

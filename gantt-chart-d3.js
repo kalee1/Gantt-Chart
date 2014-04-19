@@ -39,8 +39,10 @@ d3.gantt = function() {
     }
 
     var rectTransform = function(d) {
+    	var numParallelTask = overlappingResolver.taskTotalOverlaps(d).length;
+
     	var xpos = x(d.startDate)
-    	var ypos = y(d.category);
+    	var ypos = y(d.category) + (barHeight*numParallelTask + barPadding);
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
@@ -122,14 +124,12 @@ d3.gantt = function() {
 		var chartGroup = svg.select(".gantt-chart");
 		var barGroup =  chartGroup.select(".gantt-bars");
 		var taskGSelection = barGroup.selectAll("g").data(taskList,keyFunction);
-    	alert(taskGSelection)
     	var yposAccessor = function(d) {  var pos = getGroupPosition(d); return pos.y; }
 
     	
     	var max = d3.max(taskGSelection,yposAccessor)
     	var min = d3.min(taskGSelection,yposAccessor)
 
-    	alert(max +" " + min)
     	return max - min;
     }
     
@@ -273,7 +273,6 @@ d3.gantt = function() {
 
 				// task are overlapped, find svg element
 				var translation = "translate(" + currentPos.x + "," + (overlappedPos.y + barHeight + barPadding) + ")";
-				//alert("overlapped task: " + array[i].label + " " + overlappedPos.x + ","+ overlappedPos.y + "\noverlapping task: " + element.label + " " + translation)
 				group.attr("transform", translation);
 				return
 			}
@@ -307,7 +306,7 @@ d3.gantt = function() {
 		drawTasks(tasks);
 		drawDateLines(dateLines);
 		drawMilestones(mileStones);
-		treatOverlapping(tasks);
+		// treatOverlapping(tasks);
 
 		axisTransition();
 
@@ -435,7 +434,6 @@ d3.gantt = function() {
 		if (!arguments.length)
 		    return tasks;
 		tasks = value;
-		alert(tasks);
 		overlappingResolver.tasks(value);
 		return gantt;
 	};
@@ -500,24 +498,26 @@ d3.overlappingResolver = function(){
 	};
 
 	/* get num of overlaps of current tasks joined with overlaps of overlapped tasks. */
-	overlappingResolver.inheritOverlaps = function (task){
-
+	overlappingResolver.taskTotalOverlaps = function (task){
 		var olp = [];
-		for (i = 0; i < overlaps[task.id].length; i++){
-			olp.push(deepSearch(overlaps[tasks.id][i]));
-		}
+		alert("buscando: " + task.id)
+		deepSearch(task.id, olp);
 
-	    return overlaps[task.id];
+		var uniqueValues = olp.filter(function(elem, pos) {
+		    return olp.indexOf(elem) == pos;
+		});
+		alert("encontrado: " + uniqueValues)
+	    return uniqueValues;
 	};
 
 
-	function deepSearch(element){
+	function deepSearch(element, stack){
 		if(!hasOwnProperty(overlaps, element)){
-			alert(element);
-			return element;
+			return;
 		} else {
 			for (var i=0; i < overlaps[element].length; i++){
-				return search(overlaps[element]);
+				deepSearch(overlaps[element][i], stack);
+				stack.push(overlaps[element][i]);
 			}
 		}
 
