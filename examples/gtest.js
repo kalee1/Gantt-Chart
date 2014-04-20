@@ -12,7 +12,7 @@ var dateLines = [
 ]
 
 var mileStones = [
-{"id": 1, "date":new Date(2014,1,7),"category":"E Job", "label":"deployment 1"},
+{"id": 1, "date":new Date(2014,1,7),"category":"D Job", "label":"deployment 1"},
 {"id": 2,"date":new Date(2014,1,3),"category":"N Job", "label":"deployment 2"}
 ];
 

@@ -50,7 +50,6 @@ d3.gantt = function() {
     var mileStoneTransform = function(d) {
     	var xpos = x(d.date)
 		var categoryMsRange = categoryAxisRenderer.getCategoryMileStonesRange(d.category);
-		console.log(categoryMsRange)
 
     	var ypos = categoryMsRange[0];
     	return "translate(" + xpos + "," + ypos + ")";
@@ -90,7 +89,8 @@ d3.gantt = function() {
 			.tickSize(8).tickPadding(8);
 
 		yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
-		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories).initAxis();
+		var yAxisHeight = height - margin.top - margin.bottom;
+		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories).configValue("axisHeight", yAxisHeight) .initAxis();
     };
 
     var axisTransition = function(){
@@ -101,21 +101,11 @@ d3.gantt = function() {
 		 .attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")")
 		 .transition()
 		 .call(xAxis);
-		 
-		chartGroup.append("g").attr("class", "y axis").transition().call(yAxis);        		    	
+		
 
-		// resize y_axis using group tasks
-		var xAxisGroup = chartGroup.selectAll("g")
-		// foeach scale, check bar size
-
-		for(t in categories){
-			var type = categories[t]
-			var searchFunctor = function(d){return (d.category == type);};
-			var taskList = tasks.filter(searchFunctor);
-			if(taskList != null && taskList.length > 0){
-				calculateSize(taskList);
-			}
-		}
+		// chartGroup.append("g").attr("class", "y axis").transition().call(yAxis);        		    	
+		yAxisGroup = chartGroup.append("g").attr("class", "y axis");
+		categoryAxisRenderer.draw(yAxisGroup);
 
     }
 	/* calculates bar sizes */
@@ -188,7 +178,7 @@ d3.gantt = function() {
 		var radius = 2;
     	group.append("circle")
     		.attr("cx",0)
-    		.attr("cy",y.rangeBand())
+    		.attr("cy","0")
     		.attr("r",radius)
     		.attr("stroke","black")
     		.attr("stroke-width","3");
@@ -476,6 +466,7 @@ d3.categoryAxisRenderer = function(){
 	var categoriesRanges = {};
 
 	var config = {
+		"axisHeight": 200,
 		"barHeight" : 15,
 		"barPadding" : 5,
 		"barMargin" : 5,
@@ -493,7 +484,6 @@ d3.categoryAxisRenderer = function(){
 		if (numPararellTasks > 0){
 			height = config.barMargin + (numPararellTasks-1)*(config.barHeight + config.barPadding) + config.barHeight;
 		}
-		console.log("category height: " + category + " : "+ height);
 		return height;
 	};
 
@@ -522,24 +512,46 @@ d3.categoryAxisRenderer = function(){
 	};
 
 	var catGroupTranslation = function(d){
-		var range = getCategoryRange(d);
+		var range = categoryAxisRenderer.getCategoryRange(d);
 		var ypos = range[0] + (range[1]-range[0])/2;
-		return "translante(0," + ypos+ ')'
+		return "translate(0," + ypos+ ')'
 
 	}
 
 	/* Draws axis hanging on the svg node passed as parameter */
-	categoryAxisRenderer.drawAxis  = function(node){
-
+	categoryAxisRenderer.draw  = function(node){
 		// draw axis line
+		node.append("line")
+    		.attr("x1","0")
+    		.attr("y1","0")
+    		.attr("x2","0")
+    		.attr("y2",config.axisHeight)
+    		.attr("style","stroke:black");
 
-		// draw category tips and labels
-		node.data(categories).enter()
-			.append("g")
-			.attr("transform", catGroupTranslation(d)).
+		// draw category labels
+		node.selectAll("g").data(categories, function(d){return d;})
+			.enter().append("g")
+			.attr("transform", catGroupTranslation)
 			.append("text")
-			.text(d);
+			.attr("x", "-5")
+			.attr("style", "text-anchor: end")
+			.text(function(d){ return d;});
 
+		// draw a tip for each category
+		var positions = [];
+		for (c in categoriesRanges){
+			positions.push(categoriesRanges[c].taskIni);
+		}
+		positions = positions.sort();
+		// draw a line for each tip
+		node.selectAll("line.axisTip").data(positions).enter()
+			.append("line")
+			.attr("class", "axisTip")
+    		.attr("x1","0")
+    		.attr("y1",function(d){ return d;})
+    		.attr("x2","-5")
+    		.attr("y2",function(d){ return d;})
+    		.attr("style","stroke:black");
 
 		return categoryAxisRenderer;
 	};
