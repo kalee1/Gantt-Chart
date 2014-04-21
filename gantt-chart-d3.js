@@ -53,39 +53,32 @@ d3.gantt = function() {
     };
 
     var x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
-
-    var y = d3.scale.ordinal().domain(categories).rangeRoundBands([ 0, height - margin.top - margin.bottom ], .1);
-    
     var xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
 	    .tickSize(8).tickPadding(8);
 
-    var yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
-
     var initTimeDomain = function(tasks) {
-	if (timeDomainMode === FIT_TIME_DOMAIN_MODE) {
-	    if (tasks === undefined || tasks.length < 1) {
-		timeDomainStart = d3.time.day.offset(new Date(), -3);
-		timeDomainEnd = d3.time.hour.offset(new Date(), +3);
-		return;
-	    }
-	    tasks.sort(function(a, b) {
-		return a.endDate - b.endDate;
-	    });
-	    timeDomainEnd = tasks[tasks.length - 1].endDate;
-	    tasks.sort(function(a, b) {
-		return a.startDate - b.startDate;
-	    });
-	    timeDomainStart = tasks[0].startDate;
-	}
+		if (timeDomainMode === FIT_TIME_DOMAIN_MODE) {
+		    if (tasks === undefined || tasks.length < 1) {
+			timeDomainStart = d3.time.day.offset(new Date(), -3);
+			timeDomainEnd = d3.time.hour.offset(new Date(), +3);
+			return;
+		    }
+		    tasks.sort(function(a, b) {
+			return a.endDate - b.endDate;
+		    });
+		    timeDomainEnd = tasks[tasks.length - 1].endDate;
+		    tasks.sort(function(a, b) {
+			return a.startDate - b.startDate;
+		    });
+		    timeDomainStart = tasks[0].startDate;
+		}
     };
 
     var initAxis = function() {
 		x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
-		y = d3.scale.ordinal().domain(categories).rangeRoundBands([ 0, height - margin.top - margin.bottom ], .1);
 		xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
 			.tickSize(8).tickPadding(8);
 
-		yAxis = d3.svg.axis().scale(y).orient("left").tickSize(0);
 		var yAxisHeight = height - margin.top - margin.bottom;
 		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories).configValue("axisHeight", yAxisHeight) .initAxis();
     };
@@ -99,29 +92,10 @@ d3.gantt = function() {
 		 .transition()
 		 .call(xAxis);
 		
-
-		// chartGroup.append("g").attr("class", "y axis").transition().call(yAxis);        		    	
 		yAxisGroup = chartGroup.append("g").attr("class", "y axis");
 		categoryAxisRenderer.draw(yAxisGroup);
 
     }
-	/* calculates bar sizes */
-    var calculateSize = function(taskList){
-    	// get related "g" elements to tasks
-
-		var svg = d3.select("svg");
-		var chartGroup = svg.select(".gantt-chart");
-		var barGroup =  chartGroup.select(".gantt-bars");
-		var taskGSelection = barGroup.selectAll("g").data(taskList,keyFunction);
-    	var yposAccessor = function(d) {  var pos = getGroupPosition(d); return pos.y; }
-
-    	
-    	var max = d3.max(taskGSelection,yposAccessor)
-    	var min = d3.min(taskGSelection,yposAccessor)
-
-    	return max - min;
-    }
-    
 
     var initChartCanvas = function (){
 		var chartGroup = d3.select("body")
@@ -159,8 +133,9 @@ d3.gantt = function() {
 		  .style("stroke", "#ccc");		
 
 		var barGroup = chartGroup.append("g").attr("class", "gantt-bars");
-
     }
+
+    /*   CHART RENDERING METHODS */
 
     /**
      * draws datelines on svg canvas
@@ -268,51 +243,10 @@ d3.gantt = function() {
 		return {"x":parseInt(posX), "y": parseInt(posY)}
     } 
 
-	var checkOverlapping = function(element, index, array) {
-		var overlappedTask = [];
-		if (index == 0){
-			return;
-		}
-
-		var barGroup = d3.select(".gantt-bars").selectAll("g")
-		// check if any previous elements contains element.startDate
-		for (i=index-1; i>=0; i--){
-			if(array[i].endDate >= element.startDate ){
-				// get overlapped position
-				var overlapped = barGroup.data([array[i]], keyFunction);
-				var group = barGroup.data([element], keyFunction)
-
-				var overlappedPos = getGroupPosition(overlapped)
-				var currentPos = getGroupPosition(group)
-
-				// task are overlapped, find svg element
-				var translation = "translate(" + currentPos.x + "," + (overlappedPos.y + barHeight + barPadding) + ")";
-				group.attr("transform", translation);
-				return
-			}
-
-		}
-	}
-
-
-	var treatOverlapping = function (tasks){
-		// go through task and resolve overlapping moving task
-		//tasks.forEach(checkOverlapping)
-		var i = 0;
-		for (t in tasks){
-			checkOverlapping(tasks[i],i, tasks);
-			i++;
-		}
-	}
-
-	/**
-     * initial drawing
-     */
-    function gantt(tasks, dateLines, mileStones) {
+    gantt.draw = function() {
     	overlappingResolver.tasks(tasks).calculateOverlapping();
 		
 		initTimeDomain(tasks);
-		console.log("gantt.initAxis " + tasks)
 		initAxis();
 		
 		initChartCanvas();
@@ -321,64 +255,30 @@ d3.gantt = function() {
 		drawTasks(tasks);
 		drawDateLines(dateLines);
 		drawMilestones(mileStones);
-		// treatOverlapping(tasks);
 
 		axisTransition();
 
 		return gantt;
-
     };
+
     /**
      * rerenders data
      */
-    gantt.redraw = function(tasks,datelines) {
-
+    gantt.redraw = function() {
+    	overlappingResolver.tasks(tasks).calculateOverlapping();
+		
 		initTimeDomain(tasks);
-		console.log("gantt.redraw " + tasks)
 		initAxis();
 		
-	    var svg = d3.select("svg");
-		var chartGroup = svg.select(".gantt-chart");
-		var barGroup =  chartGroup.select(".gantt-bars");
-		var taskGSelection = barGroup.selectAll("g").data(tasks,keyFunction);
-	
-		 var group = taskGSelection.enter()
-		 .append("g")
-		 .attr("rx", 5)
-	     .attr("ry", 5)
-		 .attr("class", function(d){ 
-		     if(taskStatus[d.status] == null){ return "bar";}
-		     return taskStatus[d.status];
-		     }) 
-		 .attr("y", 0)
-		 .attr("height", function(d) { return y.rangeBand(); })
-		 .attr("width", function(d) { 
-		     return (x(d.endDate) - x(d.startDate)); 
-		     });
-		
-		// add rect
-		group.append("rect").attr("rx", 5)
-	    .attr("ry", 5)
-		 .attr("class", function(d){ 
-		     if(taskStatus[d.status] == null){ return "bar";}
-		     return taskStatus[d.status];
-		     }) 
-		 .attr("y", 0)
-		 .attr("height", function(d) { return y.rangeBand(); })
-		 .attr("width", function(d) { 
-		     return (x(d.endDate) - x(d.startDate)); 
-		     });
-		// add text
-		group.append("text").text(function(d){ return d.label;})  
-	
-		// update all g's position
-		taskGSelection.attr("transform", rectTransform)
-	
-		taskGSelection.exit().remove();
-	
-		svg.select(".x").transition().call(xAxis);
-		svg.select(".y").transition().call(yAxis);
-		
+		// initChartCanvas();
+
+		// render data visualization
+		drawTasks(tasks);
+		drawDateLines(dateLines);
+		drawMilestones(mileStones);
+
+		axisTransition();
+
 		return gantt;
     };
 
@@ -437,7 +337,6 @@ d3.gantt = function() {
 	return gantt;
     };
 
-
     gantt.categories = function(value) {
 	if (!arguments.length)
 	    return categories;
@@ -468,13 +367,24 @@ d3.gantt = function() {
 		return gantt;
 	};
 
-	gantt.overlappingResolver = function(){
-		return overlappingResolver;
+	gantt.overlappingResolver = function(value){
+		if (!arguments.length)
+		    return overlappingResolver;
+		overlappingResolver = value;
+		return gantt;
 	}
 
-	gantt.categoryAxisRenderer = function(){
-		return categoryAxisRenderer;
+	gantt.categoryAxisRenderer = function(value){
+		if (!arguments.length)
+		    return categoryAxisRenderer;
+		categoryAxisRenderer = value;
+		return gantt;
 	};
+	
+	function gantt() {
+		return gantt;
+    };
+
 
     return gantt;
 };
@@ -498,8 +408,6 @@ d3.categoryAxisRenderer = function(){
 
 
 	var calculateTaskBandHeight = function(category){
-		console.log("renderer.calculateTaskBand: tasks in overlappingResolver" + overlappingResolver.tasks())
-
 		var numPararellTasks = overlappingResolver.categoryMaxOverlaps(category);
 		var height = config["minTaskBandHeight"];
 		if (numPararellTasks > 0){
@@ -519,7 +427,6 @@ d3.categoryAxisRenderer = function(){
 		var end = 0;
 
 		var category;
-		console.log("axisRenderer.initAxis: tasks in overlappingResolver" + overlappingResolver.tasks())
 		for (var c=0; c < categories.length; c++){
 			category = categories[c];
 			var taskBandH = calculateTaskBandHeight(category);
@@ -547,7 +454,10 @@ d3.categoryAxisRenderer = function(){
 			range = categoryAxisRenderer.getCategoryRange(category);
 			ticks.push(range[0]);
 		}
-		ticks.push(range[1]);
+		if(range != null){
+			// last tick
+			ticks.push(range[1]);
+		}
 		return ticks;
 	}
 
@@ -559,13 +469,11 @@ d3.categoryAxisRenderer = function(){
 	    	var numParallelTask = overlappingResolver.taskTotalOverlaps(d).length;
 	    	var categoryTaskRange = categoryAxisRenderer.getCategoryTasksRange(d.category)
 	    	var ypos = categoryTaskRange[0] + config.barMargin + numParallelTask*(config.barHeight + config.barPadding);
-	    	console.log("category " + d.category + " taskRange : " + categoryTaskRange);
 		} else {
 			if (hasOwnProperty(d, "date")){
 				// milestone
 		    	var categoryMsRange = categoryAxisRenderer.getCategoryMileStonesRange(d.category)
 		    	var ypos = categoryMsRange[0] + config.mileStoneHeight/2;
-	    	console.log("category " + d.category + " MsRange : " + categoryMsRange);
 			} else{
 				// invalid object type
 				return null;

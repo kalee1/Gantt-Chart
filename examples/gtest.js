@@ -39,24 +39,19 @@ var format = "%B" //"%H:%M";
 var timeDomainString = "1month";
 
 var gantt = d3.gantt().categories(categories).taskStatus(taskStatus).tickFormat(format);
-
-var ovr = d3.overlappingResolver();
-var overlaps = ovr.tasks(tasks).categories(categories).calculateOverlapping().taskTotalOverlaps(tasks[2]);
-
-
-
 var margin = {
      top : 20,
      right : 40,
      bottom : 20,
      left : 80
 };
-gantt.margin(margin);
+gantt.margin(margin).timeDomainMode("fixed");
 
-gantt.timeDomainMode("fixed");
 changeTimeDomain(timeDomainString);
 
-gantt(tasks,dateLines, mileStones);
+gantt.tasks(tasks).mileStones(mileStones).dateLines(dateLines).draw();
+
+gantt();
 
 aRenderer = gantt.categoryAxisRenderer();
 
