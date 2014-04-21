@@ -12,7 +12,7 @@ var dateLines = [
 ]
 
 var mileStones = [
-{"id": 1, "date":new Date(2014,1,7),"category":"D Job", "label":"deployment 1"},
+{"id": 1,"date":new Date(2014,1,7),"category":"E Job", "label":"deployment 1"},
 {"id": 2,"date":new Date(2014,1,3),"category":"N Job", "label":"deployment 2"}
 ];
 
@@ -139,20 +139,3 @@ function removeTask() {
     gantt.redraw(tasks);
 };
 
-
-
-var svg = d3.select("svg");
-svg.selectAll("circle").data(tasks, function (d) { return d.label + "ssss";}).enter().append("circle")
-            .attr("cx",function(d){ return 30 + d.pos;})
-            .attr("cy",130)
-            .attr("r",10)
-            .attr("stroke","black")
-            .attr("stroke-width","3");
-svg.selectAll("circle").data(tasks, function (d) { return d.label+ "ssss";})
-            .transition()
-            .attr("stroke","red");
-
-
-svg.selectAll("circle").data([ tasks[2] ], function (d) { return d.label+ "ssss";})
-            .transition()
-            .attr("stroke","blue");
