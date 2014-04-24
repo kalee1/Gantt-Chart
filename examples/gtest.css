@@ -15,6 +15,12 @@ html,body,#wrapper {
 	shape-rendering: crispEdges;
 }
 
+.xaxis_group {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+
 .bar {
 	fill: #33b5e5;
 }

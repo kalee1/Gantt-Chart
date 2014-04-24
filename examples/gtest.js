@@ -55,9 +55,6 @@ gantt();
 
 aRenderer = gantt.categoryAxisRenderer();
 
-aRenderer.getCategoryRange(categories[2]);
-aRenderer.getCategoryRange(categories[3]);
-
 function changeTimeDomain(timeDomainString) {
     this.timeDomainString = timeDomainString;
     switch (timeDomainString) {

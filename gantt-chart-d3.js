@@ -80,19 +80,29 @@ d3.gantt = function() {
 			.tickSize(8).tickPadding(8);
 
 		var yAxisHeight = height - margin.top - margin.bottom;
-		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories).configValue("axisHeight", yAxisHeight) .initAxis();
+		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories).configValue("axisLength", yAxisHeight) .init();
     };
 
     var axisTransition = function(){
-    	// build x and y axis using d3 scales
+
 		var chartGroup = d3.select(".gantt-chart");
-		chartGroup.append("g")
-		 .attr("class", "x axis")
-		 .attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")")
+
+    	// build x axis
+		var xAxisGroup = chartGroup.select("g.xaxis_group");
+		if (xAxisGroup.empty()){
+			xAxisGroup = chartGroup.append("g").attr("class", "xaxis_group")
+		}
+
+		xAxisGroup.attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")")
 		 .transition()
 		 .call(xAxis);
 		
-		yAxisGroup = chartGroup.append("g").attr("class", "y axis");
+		// create y axis group y not exists
+		var yAxisGroup = chartGroup.select("g.yaxis_group");
+		if (yAxisGroup.empty()){
+			yAxisGroup = chartGroup.append("g").attr("class", "yaxis_group");
+		}
+
 		categoryAxisRenderer.draw(yAxisGroup);
 
     }
@@ -268,7 +278,7 @@ d3.gantt = function() {
     	overlappingResolver.tasks(tasks).calculateOverlapping();
 		
 		initTimeDomain(tasks);
-		initAxis();
+		//initAxis();  --> comentando esto se evita el desplazamiento de lo ejes
 		
 		// initChartCanvas();
 
@@ -277,7 +287,7 @@ d3.gantt = function() {
 		drawDateLines(dateLines);
 		drawMilestones(mileStones);
 
-		axisTransition();
+		axisTransition();  //--> comentando esto deja de pintar
 
 		return gantt;
     };
@@ -389,6 +399,39 @@ d3.gantt = function() {
     return gantt;
 };
 
+d3.timeAxisRenderer = function(){
+
+	var scale = 1;
+	var config = {
+		"axisLength": 600
+	};
+
+	/* PUBLIC METHODS */
+
+	/* Calculates categories ranges */
+	timeAxisRenderer.init  = function(){	
+	}
+	timeAxisRenderer.ticks = function(){
+	}
+	/* Calculates object rendering position in axis */
+	timeAxisRenderer.position = function(d){
+	}
+	/* Draws axis hanging on the svg node passed as parameter */
+	timeAxisRenderer.draw  = function(node){
+	}
+
+	/* PRIVATE METHODS */
+
+	/* GETTER / SETTER METHODS */
+
+	function timeAxisRenderer(){
+	};
+	
+	return timeAxisRenderer;
+
+}
+
+
 
 d3.categoryAxisRenderer = function(){
 	var overlappingResolver;
@@ -398,7 +441,7 @@ d3.categoryAxisRenderer = function(){
 	var categoriesRanges = {};
 
 	var config = {
-		"axisHeight": 200,
+		"axisLength": 200,
 		"barHeight" : 15,
 		"barPadding" : 5,
 		"barMargin" : 5,
@@ -406,23 +449,10 @@ d3.categoryAxisRenderer = function(){
 		"mileStoneHeight" : 15
 	};
 
-
-	var calculateTaskBandHeight = function(category){
-		var numPararellTasks = overlappingResolver.categoryMaxOverlaps(category);
-		var height = config["minTaskBandHeight"];
-		if (numPararellTasks > 0){
-			height = config.barMargin + (numPararellTasks-1)*(config.barHeight + config.barPadding) + config.barHeight + config.barMargin;
-		}
-		return height;
-	};
-
-	var calculateMilestoneBandHeight = function(category){
-		return config.mileStoneHeight;
-	};
-
+	/* PUBLIC METHODS */
 
 	/* Calculates categories ranges */
-	categoryAxisRenderer.initAxis  = function(){
+	categoryAxisRenderer.init  = function(){
 		var ini = 0;
 		var end = 0;
 
@@ -439,19 +469,12 @@ d3.categoryAxisRenderer = function(){
 		return categoryAxisRenderer;
 	};
 
-	var catGroupTranslation = function(d){
-		var range = categoryAxisRenderer.getCategoryRange(d);
-		var ypos = range[0] + (range[1]-range[0])/2;
-		return "translate(0," + ypos+ ')'
-
-	}
-
 	categoryAxisRenderer.ticks = function(){
 		var category, range;
 		var ticks = [];
 		for (var c= 0; c < categories.length; c++){
 			category = categories[c];
-			range = categoryAxisRenderer.getCategoryRange(category);
+			range = getCategoryRange(category);
 			ticks.push(range[0]);
 		}
 		if(range != null){
@@ -467,12 +490,12 @@ d3.categoryAxisRenderer = function(){
 		if (hasOwnProperty(d, "startDate")){
 			// task
 	    	var numParallelTask = overlappingResolver.taskTotalOverlaps(d).length;
-	    	var categoryTaskRange = categoryAxisRenderer.getCategoryTasksRange(d.category)
+	    	var categoryTaskRange = getCategoryTasksRange(d.category)
 	    	var ypos = categoryTaskRange[0] + config.barMargin + numParallelTask*(config.barHeight + config.barPadding);
 		} else {
 			if (hasOwnProperty(d, "date")){
 				// milestone
-		    	var categoryMsRange = categoryAxisRenderer.getCategoryMileStonesRange(d.category)
+		    	var categoryMsRange = getCategoryMileStonesRange(d.category)
 		    	var ypos = categoryMsRange[0] + config.mileStoneHeight/2;
 			} else{
 				// invalid object type
@@ -484,12 +507,16 @@ d3.categoryAxisRenderer = function(){
 
 	/* Draws axis hanging on the svg node passed as parameter */
 	categoryAxisRenderer.draw  = function(node){
+		// remove axis if exists
+		node.selectAll().remove();
+
 		// draw axis line
 		node.append("line")
     		.attr("x1","0")
     		.attr("y1","0")
     		.attr("x2","0")
-    		.attr("y2",config.axisHeight)
+    		.attr("y2",config.axisLength)
+    		.attr("class", "yaxis")
     		.attr("style","stroke:black");
 
 		// draw category labels
@@ -499,12 +526,13 @@ d3.categoryAxisRenderer = function(){
 			.append("text")
 			.attr("x", "-5")
 			.attr("style", "text-anchor: end")
+			.attr("class", "yaxis_cat_labels")
 			.text(function(d){ return d;});
 
 		// draw a line for each tip
-		node.selectAll("line.axisTip").data(categoryAxisRenderer.ticks()).enter()
+		node.selectAll("line.yaxisTip").data(categoryAxisRenderer.ticks()).enter()
 			.append("line")
-			.attr("class", "axisTip")
+			.attr("class", "yaxisTip")
     		.attr("x1","0")
     		.attr("y1",function(d){ return d;})
     		.attr("x2","-5")
@@ -514,24 +542,47 @@ d3.categoryAxisRenderer = function(){
 		return categoryAxisRenderer;
 	};
 
-	/* Getters / Setters */
-	categoryAxisRenderer.getCategoryRange  = function(category){
+	/* PRIVATE METHODS */
+
+	var calculateTaskBandHeight = function(category){
+		var numPararellTasks = overlappingResolver.categoryMaxOverlaps(category);
+		var height = config["minTaskBandHeight"];
+		if (numPararellTasks > 0){
+			height = config.barMargin + (numPararellTasks-1)*(config.barHeight + config.barPadding) + config.barHeight + config.barMargin;
+		}
+		return height;
+	};
+
+	var calculateMilestoneBandHeight = function(category){
+		return config.mileStoneHeight;
+	};
+
+	var catGroupTranslation = function(d){
+		var range = getCategoryRange(d);
+		var ypos = range[0] + (range[1]-range[0])/2;
+		return "translate(0," + ypos+ ')'
+
+	}
+
+	var getCategoryRange  = function(category){
 		var init = categoriesRanges[category].taskIni;
 		var end = categoriesRanges[category].mStoneEnd;
 		return [init,end];
 	};
 
-	categoryAxisRenderer.getCategoryTasksRange  = function(category){
+	var getCategoryTasksRange  = function(category){
 		var init = categoriesRanges[category].taskIni;
 		var end = categoriesRanges[category].taskEnd;
 		return [init,end];
 	};
 
-	categoryAxisRenderer.getCategoryMileStonesRange  = function(category){
+	var getCategoryMileStonesRange  = function(category){
 		var init = categoriesRanges[category].mStoneIni;
 		var end = categoriesRanges[category].mStoneEnd;
 		return [init,end];
 	};
+
+	/* GETTERS / SETTERS */
 
 	categoryAxisRenderer.overlappingResolver = function(value) {
 		if (!arguments.length)
