@@ -9,13 +9,7 @@ html,body,#wrapper {
 	font-size: 12px;
 }
 
-.axis path,.axis line {
-	fill: none;
-	stroke: #000;
-	shape-rendering: crispEdges;
-}
-
-.xaxis_group {
+.xaxis_group path,.xaxis_group line {
 	fill: none;
 	stroke: #000;
 	shape-rendering: crispEdges;

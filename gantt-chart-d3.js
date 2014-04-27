@@ -7,6 +7,7 @@ d3.gantt = function() {
     // Chart rendering properties
     var FIT_TIME_DOMAIN_MODE = "fit";
     var FIXED_TIME_DOMAIN_MODE = "fixed";
+    var id = Math.floor((Math.random()*1000000)+1);
     
     var margin = {
 		top : 20,
@@ -40,7 +41,7 @@ d3.gantt = function() {
     	return d.id;
     }
 
-    var rectTransform = function(d) {
+    var taskBarTransform = function(d) {
     	var xpos = x(d.startDate)
 		var ypos = categoryAxisRenderer.position(d);
     	return "translate(" + xpos + "," + ypos + ")";
@@ -74,17 +75,16 @@ d3.gantt = function() {
 		}
     };
 
-    var initAxis = function() {
+    var configureAxisDomain = function() {
 		x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
 		xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
 			.tickSize(8).tickPadding(8);
 
 		var yAxisHeight = height - margin.top - margin.bottom;
-		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories).configValue("axisLength", yAxisHeight) .init();
+		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories).configValue("axisLength", yAxisHeight).init();
     };
 
-    var axisTransition = function(){
-
+    var renderAxis = function() {
 		var chartGroup = d3.select(".gantt-chart");
 
     	// build x axis
@@ -97,28 +97,24 @@ d3.gantt = function() {
 		 .transition()
 		 .call(xAxis);
 		
-		// create y axis group y not exists
+		// create y axis group if it not exists
 		var yAxisGroup = chartGroup.select("g.yaxis_group");
 		if (yAxisGroup.empty()){
 			yAxisGroup = chartGroup.append("g").attr("class", "yaxis_group");
 		}
 
 		categoryAxisRenderer.draw(yAxisGroup);
-
     }
 
-    var initChartCanvas = function (){
-		var chartGroup = d3.select("body")
-			.append("svg")
-			.attr("class", "chart")
-			.attr("width", width + margin.left + margin.right)
-			.attr("height", height + margin.top + margin.bottom)
-			.append("g")
-			.attr("class", "gantt-chart")
-			.attr("width", width + margin.left + margin.right)
-			.attr("height", height + margin.top + margin.bottom)
-			.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
-		
+    var drawAxis = function(){
+    	configureAxisDomain();
+    	renderAxis();
+    	drawGrid();
+    }
+
+    var drawGrid = function(){
+		var chartGroup = d3.select("body").selectAll("svg").data([id], function(d){ return d;})
+
 		// draw x axis grid lines
 		chartGroup.selectAll("line.tickX")
 		  .data(x.ticks(10))
@@ -132,18 +128,51 @@ d3.gantt = function() {
 
 		// draw y axis grid lines
 		var gridWidth = width + margin.left + margin.right;
-		chartGroup.selectAll("line.tick")
-		  .data(categoryAxisRenderer.ticks())
-		  .enter().append("line")
+		var lstTicks = chartGroup.selectAll("line.tickY")
+
+		var newData = lstTicks.data(categoryAxisRenderer.ticks(), function(d){ return d;})
+		  .enter();
+
+		newData.append("line")
 		  .attr("class", "tickY")
 		  .attr("x1", 0)
 		  .attr("x2", gridWidth)
 		  .attr("y1", function(d){ return d;})
 		  .attr("y2", function(d){ return d;})
 		  .style("stroke", "#ccc");		
+    }
 
+    var initChartCanvas = function (){
+		var chartGroup = d3.select("body").selectAll("svg").data([id], function(d){ return d;})
+			.enter()
+			.append("svg")
+			.attr("class", "chart")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+			.attr("class", "gantt-chart")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+		
 		var barGroup = chartGroup.append("g").attr("class", "gantt-bars");
     }
+
+	var init = function (){
+		// configure axis and canvas		
+		initTimeDomain(tasks);
+		initChartCanvas();
+	}
+
+	/**
+	Checks if chart componentes are already configured
+	*/
+	var isInitialized = function(){
+		// check if svg element exists, if it exists, chart has been initialized
+		var svgSelection = d3.select("body").selectAll("svg").data([id], function(d){ return d;})
+		return !svgSelection.empty();
+	}
+
 
     /*   CHART RENDERING METHODS */
 
@@ -170,6 +199,9 @@ d3.gantt = function() {
 		var barGroup =  chartGroup.select(".gantt-bars");
 
 		var taskGSelection = barGroup.selectAll("g.mileStone").data(mileStones,keyFunction);
+		// update position to already drawn bars
+		taskGSelection
+		 .attr("transform", mileStoneTransform);
 		
 		var group = taskGSelection.enter().append("g")
 			.attr("rx", 5)
@@ -203,6 +235,10 @@ d3.gantt = function() {
 		var barGroup =  chartGroup.select(".gantt-bars");
 		var taskGSelection = barGroup.selectAll("g").data(tasks,keyFunction);
 
+		// update position to already drawn bars
+		taskGSelection
+		 .attr("transform", taskBarTransform);
+
 		var group = taskGSelection.enter().append("g")
 		 .attr("rx", 5)
 		 .attr("ry", 5)
@@ -211,7 +247,7 @@ d3.gantt = function() {
 		     return taskStatus[d.status];
 		     }) 
 		 .attr("y", 0)
-		 .attr("transform", rectTransform)
+		 .attr("transform", taskBarTransform)
 		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
 		 .attr("width", function(d) { 
 		     return (x(d.endDate) - x(d.startDate)); 
@@ -253,41 +289,23 @@ d3.gantt = function() {
 		return {"x":parseInt(posX), "y": parseInt(posY)}
     } 
 
+	/* GETTER / SETTER METHODS */
+
     gantt.draw = function() {
+    	if(!isInitialized()){
+    		// initialize chart graphic components
+			init();
+    	}
+    	// calculate task overlapping
     	overlappingResolver.tasks(tasks).calculateOverlapping();
-		
-		initTimeDomain(tasks);
-		initAxis();
-		
-		initChartCanvas();
 
 		// render data visualization
 		drawTasks(tasks);
 		drawDateLines(dateLines);
 		drawMilestones(mileStones);
 
-		axisTransition();
-
-		return gantt;
-    };
-
-    /**
-     * rerenders data
-     */
-    gantt.redraw = function() {
-    	overlappingResolver.tasks(tasks).calculateOverlapping();
-		
-		initTimeDomain(tasks);
-		//initAxis();  --> comentando esto se evita el desplazamiento de lo ejes
-		
-		// initChartCanvas();
-
-		// render data visualization
-		drawTasks(tasks);
-		drawDateLines(dateLines);
-		drawMilestones(mileStones);
-
-		axisTransition();  //--> comentando esto deja de pintar
+		// render axis
+		drawAxis();
 
 		return gantt;
     };
@@ -318,6 +336,14 @@ d3.gantt = function() {
         return gantt;
 
     };
+
+    gantt.id = function(value) {
+	if (!arguments.length)
+	    return id;
+	id = value;
+	return gantt;
+    };
+
     
     gantt.taskStatus = function(value) {
 	if (!arguments.length)

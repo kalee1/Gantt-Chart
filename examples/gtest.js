@@ -1,9 +1,9 @@
 var tasks = [
-{"id": "1","startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"category":"E Job","status":"RUNNING", "label":"task1","pos":20},
-{"id": "11","startDate":new Date(2014,1,3),"endDate":new Date(2014,1,5),"category":"E Job","status":"RUNNING", "label":"task1.1","pos":30},
-{"id": "2","startDate":new Date(2014,1,4),"endDate":new Date(2014,1,8),"category":"E Job","status":"RUNNING", "label":"task2","pos":40},
-{"id": "21","startDate":new Date(2014,1,7),"endDate":new Date(2014,1,8),"category":"E Job","status":"RUNNING", "label":"task2.1","pos":80},
-{"id": "3","startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"category":"E Job","status":"RUNNING", "label":"task3","pos":100}
+{"id": "1","startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"category":"E Job","status":"RUNNING", "label":"task1"},
+{"id": "11","startDate":new Date(2014,1,3),"endDate":new Date(2014,1,5),"category":"E Job","status":"RUNNING", "label":"task1.1"},
+{"id": "2","startDate":new Date(2014,1,4),"endDate":new Date(2014,1,8),"category":"E Job","status":"RUNNING", "label":"task2"},
+{"id": "21","startDate":new Date(2014,1,7),"endDate":new Date(2014,1,8),"category":"E Job","status":"RUNNING", "label":"task2.1"},
+{"id": "3","startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"category":"E Job","status":"RUNNING", "label":"task3"}
 ];
 
 var dateLines = [
@@ -93,13 +93,13 @@ function changeTimeDomain(timeDomainString) {
 
     }
     gantt.tickFormat(format);
-    gantt.redraw(tasks);
+    gantt.draw(tasks);
 }
 
 function getEndDate() {
     var lastEndDate = Date.now();
     if (tasks.length > 0) {
-	lastEndDate = tasks[tasks.length - 1].endDate;
+	   lastEndDate = tasks[tasks.length - 1].endDate;
     }
 
     return lastEndDate;
@@ -107,27 +107,32 @@ function getEndDate() {
 
 function addTask() {
 
+    // {"id": "1","startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"category":"E Job","status":"RUNNING", "label":"task1","pos":20},
+
     var lastEndDate = getEndDate();
     var taskStatusKeys = Object.keys(taskStatus);
     var taskStatusName = taskStatusKeys[Math.floor(Math.random() * taskStatusKeys.length)];
     var category = categories[Math.floor(Math.random() * categories.length)];
     var label = categories[Math.floor(Math.random() * categories.length)] + lastEndDate;
 
+// {"id": "3","startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"category":"E Job","status":"RUNNING", "label":"task3"}
+
     tasks.push({
-	"startDate" : d3.time.hour.offset(lastEndDate, Math.ceil(1 * Math.random())),
-	"endDate" : d3.time.hour.offset(lastEndDate, (Math.ceil(Math.random() * 3)) + 1),
+    "id" :  Math.floor((Math.random()*1000000)+1),
+	"startDate" : d3.time.day.offset(lastEndDate, Math.ceil(1 * Math.random())),
+	"endDate" : d3.time.day.offset(lastEndDate, (Math.ceil(Math.random() * 3)) + 1),
 	"category" : category,
 	"status" : taskStatusName,
 	"label": label
     });
 
     changeTimeDomain(timeDomainString);
-    gantt.redraw(tasks);
+    gantt.draw(tasks);
 };
 
 function removeTask() {
     tasks.pop();
     changeTimeDomain(timeDomainString);
-    gantt.redraw(tasks);
+    gantt.draw(tasks);
 };
 
