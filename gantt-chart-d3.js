@@ -57,6 +57,15 @@ d3.gantt = function() {
     var xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
 	    .tickSize(8).tickPadding(8);
 
+	/**
+		Selects root chart "g" node for current gantt chart.
+	*/
+    var getChartGroup = function() {
+		var chartGroup = d3.select("body").selectAll("svg").data([id], function(d){ return d;}).selectAll(".gantt-chart");
+		return chartGroup;
+    }
+
+
     var initTimeDomain = function(tasks) {
 		if (timeDomainMode === FIT_TIME_DOMAIN_MODE) {
 		    if (tasks === undefined || tasks.length < 1) {
@@ -85,8 +94,8 @@ d3.gantt = function() {
     };
 
     var renderAxis = function() {
-		var chartGroup = d3.select(".gantt-chart");
-
+		// var chartGroup = d3.select(".gantt-chart");
+		var chartGroup = getChartGroup();
     	// build x axis
 		var xAxisGroup = chartGroup.select("g.xaxis_group");
 		if (xAxisGroup.empty()){
@@ -113,13 +122,13 @@ d3.gantt = function() {
     }
 
     var drawGrid = function(){
-		var chartGroup = d3.select("body").selectAll("svg").data([id], function(d){ return d;})
+		var chartGroup = getChartGroup();
 
 		// draw x axis grid lines
-		chartGroup.selectAll("line.tickX")
+		chartGroup.selectAll("line.gridX")
 		  .data(x.ticks(10))
 		  .enter().append("line")
-		  .attr("class", "tickX")
+		  .attr("class", "gridX")
 		  .attr("x1", x)
 		  .attr("x2", x)
 		  .attr("y1", 0)
@@ -128,13 +137,12 @@ d3.gantt = function() {
 
 		// draw y axis grid lines
 		var gridWidth = width + margin.left + margin.right;
-		var lstTicks = chartGroup.selectAll("line.tickY")
-
-		var newData = lstTicks.data(categoryAxisRenderer.ticks(), function(d){ return d;})
+		var lstTicks = chartGroup.selectAll("line.gridY")
+		var newTicks = lstTicks.data(categoryAxisRenderer.ticks(), function(d){ return d;})
 		  .enter();
 
-		newData.append("line")
-		  .attr("class", "tickY")
+		newTicks.append("line")
+		  .attr("class", "gridY")
 		  .attr("x1", 0)
 		  .attr("x2", gridWidth)
 		  .attr("y1", function(d){ return d;})
@@ -180,9 +188,9 @@ d3.gantt = function() {
      * draws datelines on svg canvas
      */
     var drawDateLines = function (dateLines){
-		var chartGroup = d3.select(".gantt-bars");
+		var barGroup = getChartGroup().select(".gantt-bars");
 		
-    	chartGroup.selectAll("line").data(dateLines,function(d) { return d.date; })
+    	barGroup.selectAll("line").data(dateLines,function(d) { return d.date; })
     		.enter()
     		.append("line")
     		.attr("x1",function (d) { return x(d.date);})
@@ -193,9 +201,7 @@ d3.gantt = function() {
     }
     
     var drawMilestones = function (mileStones){
-
-		var svg = d3.select("svg");
-		var chartGroup = svg.select(".gantt-chart");
+		var chartGroup = getChartGroup();
 		var barGroup =  chartGroup.select(".gantt-bars");
 
 		var taskGSelection = barGroup.selectAll("g.mileStone").data(mileStones,keyFunction);
@@ -230,8 +236,7 @@ d3.gantt = function() {
     
 	var drawTasks = function (tasks){
 
-		var svg = d3.select("svg");
-		var chartGroup = svg.select(".gantt-chart");
+		var chartGroup = getChartGroup();
 		var barGroup =  chartGroup.select(".gantt-bars");
 		var taskGSelection = barGroup.selectAll("g").data(tasks,keyFunction);
 
@@ -273,8 +278,6 @@ d3.gantt = function() {
 			.attr("x", function(d) { return 5; })
 			.attr("fill","black")
 			.text(function(d){ return d.label;})
-		 
-		
     }
 
     var getGroupPosition = function(groupNode){
@@ -490,6 +493,7 @@ d3.categoryAxisRenderer = function(){
 			end = ini + taskBandH + msBandH;
 
 			categoriesRanges[category] = { "taskIni": ini, "taskEnd": (ini +taskBandH), "mStoneIni": (ini + taskBandH),  "mStoneEnd": end } ;
+			console.log("Categories calculated: " + categoriesRanges[category].taskIni)
 			ini = end;
 		}
 		return categoryAxisRenderer;
@@ -503,6 +507,8 @@ d3.categoryAxisRenderer = function(){
 			range = getCategoryRange(category);
 			ticks.push(range[0]);
 		}
+		console.log("Categorias: " + categories)
+		console.log("ticks: " + ticks)
 		if(range != null){
 			// last tick
 			ticks.push(range[1]);
@@ -542,7 +548,7 @@ d3.categoryAxisRenderer = function(){
     		.attr("y1","0")
     		.attr("x2","0")
     		.attr("y2",config.axisLength)
-    		.attr("class", "yaxis")
+    		.attr("class", "tickY")
     		.attr("style","stroke:black");
 
 		// draw category labels
@@ -556,9 +562,9 @@ d3.categoryAxisRenderer = function(){
 			.text(function(d){ return d;});
 
 		// draw a line for each tip
-		node.selectAll("line.yaxisTip").data(categoryAxisRenderer.ticks()).enter()
+		node.selectAll("line.tickY").data(categoryAxisRenderer.ticks()).enter()
 			.append("line")
-			.attr("class", "yaxisTip")
+			.attr("class", "tickY")
     		.attr("x1","0")
     		.attr("y1",function(d){ return d;})
     		.attr("x2","-5")
