@@ -31,6 +31,10 @@ d3.gantt = function() {
     var overlappingResolver = d3.overlappingResolver();
     var categoryAxisRenderer = d3.categoryAxisRenderer();
 
+    var onTaskClickHander = function(d){
+    	alert(d.id + " selected!!!")
+    }
+
 
     var tickFormat = "%H:%M";
 
@@ -253,7 +257,8 @@ d3.gantt = function() {
 		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
 		 .attr("width", function(d) { 
 		     return (x(d.endDate) - x(d.startDate)); 
-		     });
+		     })
+		 .on("click", onTaskClickHander)
 
 		// add bar's rect
 		group.append("rect")
