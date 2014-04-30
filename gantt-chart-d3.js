@@ -50,7 +50,6 @@ d3.gantt = function() {
     var mileStoneTransform = function(d) {
     	var xpos = x(d.date)
     	var ypos = categoryAxisRenderer.position(d);
-    	console.log("======= nueva posicion: " + d.id + " -> " + ypos)
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
@@ -301,13 +300,13 @@ d3.gantt = function() {
     	// calculate task overlapping
     	overlappingResolver.tasks(tasks).calculateOverlapping();
 
+		// render axis
+		drawAxis();
+
 		// render data visualization
 		drawTasks(tasks);
 		drawDateLines(dateLines);
 		drawMilestones(mileStones);
-
-		// render axis
-		drawAxis();
 
 		return gantt;
     };
