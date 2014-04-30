@@ -35,10 +35,10 @@ d3.gantt = function() {
     var tickFormat = "%H:%M";
 
     var keyFunction = function(d) {
-		return d.id;
+		return "t_" + d.id;
     };
     var mskeyFunction = function(d){
-    	return d.id;
+    	return "ms_" + d.id;
     }
 
     var taskBarTransform = function(d) {
@@ -50,6 +50,7 @@ d3.gantt = function() {
     var mileStoneTransform = function(d) {
     	var xpos = x(d.date)
     	var ypos = categoryAxisRenderer.position(d);
+    	console.log("======= nueva posicion: " + d.id + " -> " + ypos)
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
@@ -93,9 +94,15 @@ d3.gantt = function() {
 		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories).configValue("axisLength", yAxisHeight).init();
     };
 
+    var drawAxis = function(){
+    	configureAxisDomain();
+    	renderAxis();
+    	drawGrid();
+    }
+
     var renderAxis = function() {
-		// var chartGroup = d3.select(".gantt-chart");
 		var chartGroup = getChartGroup();
+
     	// build x axis
 		var xAxisGroup = chartGroup.select("g.xaxis_group");
 		if (xAxisGroup.empty()){
@@ -115,12 +122,6 @@ d3.gantt = function() {
 		categoryAxisRenderer.draw(yAxisGroup);
     }
 
-    var drawAxis = function(){
-    	configureAxisDomain();
-    	renderAxis();
-    	drawGrid();
-    }
-
     var drawGrid = function(){
 		var chartGroup = getChartGroup();
 
@@ -137,11 +138,10 @@ d3.gantt = function() {
 
 		// draw y axis grid lines
 		var gridWidth = width + margin.left + margin.right;
-		var lstTicks = chartGroup.selectAll("line.gridY")
-		var newTicks = lstTicks.data(categoryAxisRenderer.ticks(), function(d){ return d;})
-		  .enter();
 
-		newTicks.append("line")
+		chartGroup.selectAll("line.gridY").remove();
+		chartGroup.selectAll("line.gridY").data(categoryAxisRenderer.ticks(), function(d){ return d;}).enter()
+		  .append("line")
 		  .attr("class", "gridY")
 		  .attr("x1", 0)
 		  .attr("x2", gridWidth)
@@ -203,9 +203,9 @@ d3.gantt = function() {
     var drawMilestones = function (mileStones){
 		var chartGroup = getChartGroup();
 		var barGroup =  chartGroup.select(".gantt-bars");
+		var taskGSelection = barGroup.selectAll("g.mileStone").data(mileStones,mskeyFunction);
 
-		var taskGSelection = barGroup.selectAll("g.mileStone").data(mileStones,keyFunction);
-		// update position to already drawn bars
+		// update position to already drawn milestones
 		taskGSelection
 		 .attr("transform", mileStoneTransform);
 		
@@ -230,8 +230,6 @@ d3.gantt = function() {
 			.attr("y",  mileStoneRadius)
 			.attr("fill","black")
 			.text(function(d){ return d.label;})
-		 
-		
     }
     
 	var drawTasks = function (tasks){
@@ -299,6 +297,7 @@ d3.gantt = function() {
     		// initialize chart graphic components
 			init();
     	}
+
     	// calculate task overlapping
     	overlappingResolver.tasks(tasks).calculateOverlapping();
 
@@ -493,7 +492,6 @@ d3.categoryAxisRenderer = function(){
 			end = ini + taskBandH + msBandH;
 
 			categoriesRanges[category] = { "taskIni": ini, "taskEnd": (ini +taskBandH), "mStoneIni": (ini + taskBandH),  "mStoneEnd": end } ;
-			console.log("Categories calculated: " + categoriesRanges[category].taskIni)
 			ini = end;
 		}
 		return categoryAxisRenderer;
@@ -507,8 +505,6 @@ d3.categoryAxisRenderer = function(){
 			range = getCategoryRange(category);
 			ticks.push(range[0]);
 		}
-		console.log("Categorias: " + categories)
-		console.log("ticks: " + ticks)
 		if(range != null){
 			// last tick
 			ticks.push(range[1]);
@@ -548,12 +544,13 @@ d3.categoryAxisRenderer = function(){
     		.attr("y1","0")
     		.attr("x2","0")
     		.attr("y2",config.axisLength)
-    		.attr("class", "tickY")
+    		.attr("class", "axisY")
     		.attr("style","stroke:black");
 
 		// draw category labels
-		node.selectAll("g").data(categories, function(d){return d;})
-			.enter().append("g")
+		node.selectAll("g").remove();
+		node.selectAll("g").data(categories, function(d){return d;}).enter()
+			.append("g")
 			.attr("transform", catGroupTranslation)
 			.append("text")
 			.attr("x", "-5")
@@ -561,7 +558,8 @@ d3.categoryAxisRenderer = function(){
 			.attr("class", "yaxis_cat_labels")
 			.text(function(d){ return d;});
 
-		// draw a line for each tip
+		// remove previous tips and draw a line for each tip
+		node.selectAll("line.tickY").remove();
 		node.selectAll("line.tickY").data(categoryAxisRenderer.ticks()).enter()
 			.append("line")
 			.attr("class", "tickY")
