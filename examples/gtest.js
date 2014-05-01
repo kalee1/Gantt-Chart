@@ -117,14 +117,14 @@ function addTask() {
     var lastEndDate = getEndDate();
     var taskStatusKeys = Object.keys(taskStatus);
     var taskStatusName = taskStatusKeys[Math.floor(Math.random() * taskStatusKeys.length)];
-    var category = categories[Math.floor(Math.random() * categories.length)];
+    var category = categories[0];//categories[Math.floor(Math.random() * categories.length)];
     var label = categories[Math.floor(Math.random() * categories.length)] + lastEndDate;
 
 // {"id": "3","startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"category":"E Job","status":"RUNNING", "label":"task3"}
 
     tasks.push({
     "id" :  Math.floor((Math.random()*1000000)+1),
-	"startDate" : d3.time.day.offset(lastEndDate, Math.ceil(1 * Math.random())),
+	"startDate" : d3.time.day.offset(lastEndDate, -1),//Math.ceil(1 * Math.random())),
 	"endDate" : d3.time.day.offset(lastEndDate, (Math.ceil(Math.random() * 3)) + 1),
 	"category" : category,
 	"status" : taskStatusName,
