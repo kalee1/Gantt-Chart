@@ -46,14 +46,12 @@ d3.gantt = function() {
     }
 
     var taskBarTransform = function(d) {
-    	console.log("taskBarTransform")
     	var xpos = x(d.startDate)
 		var ypos = categoryAxisRenderer.position(d);
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
     var mileStoneTransform = function(d) {
-    	console.log("mileStoneTransform")
     	var xpos = x(d.date)
     	var ypos = categoryAxisRenderer.position(d);
     	return "translate(" + xpos + "," + ypos + ")";
@@ -279,9 +277,6 @@ d3.gantt = function() {
     }
     
 	var drawTasks = function (tasks){
-
-		console.log("drawTasks")
-
 		var visibleTasks = tasks.filter(isTaskVisible);
 
 		var chartGroup = getChartGroup();
@@ -719,6 +714,7 @@ d3.overlappingResolver = function(){
 		if (!arguments.length)
 		    return tasks;
 		tasks = value;
+		overlaps = {};
 		return overlappingResolver;
 	};
 
