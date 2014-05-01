@@ -11,11 +11,12 @@ d3.gantt = function() {
     
     var margin = {
 		top : 20,
-		right : 40,
+		right:  40,
 		bottom : 20,
 		left : 150
     };
-    var height = document.body.clientHeight - margin.top - margin.bottom-5;
+    //var height = document.body.clientHeight - margin.top - margin.bottom-5;
+    var height = null;
     var width = document.body.clientWidth - margin.right - margin.left-5;
     var mileStoneRadius = 2;
 
@@ -33,6 +34,18 @@ d3.gantt = function() {
 
     var onTaskClickHander = function(d){
     	// alert(d.id + " selected!!!")
+    }
+
+
+    var getChartHeight = function(){
+    	var chartHeigth = null;
+    	if(height != null && height > 0){
+    		chartHeigth = height;
+    	} else {
+    		chartHeigth = categoryAxisRenderer.calculatedLength();
+    	}
+    	console.log("chartHeigth: " + chartHeigth)
+    	return chartHeigth;
     }
 
 
@@ -99,8 +112,12 @@ d3.gantt = function() {
 		xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
 			.tickSize(8).tickPadding(8);
 
-		var yAxisHeight = height - margin.top - margin.bottom;
-		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories).configValue("axisLength", yAxisHeight).init();
+		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories);
+		if(height != null){
+			var yAxisHeight = height - margin.top - margin.bottom;
+			categoryAxisRenderer.configValue("axisLength", yAxisHeight);
+		}
+		categoryAxisRenderer.init();
     };
 
     var drawAxis = function(){
@@ -112,16 +129,6 @@ d3.gantt = function() {
     var renderAxis = function() {
 		var chartGroup = getChartGroup();
 
-    	// build x axis
-		var xAxisGroup = chartGroup.select("g.xaxis_group");
-		if (xAxisGroup.empty()){
-			xAxisGroup = chartGroup.append("g").attr("class", "xaxis_group")
-		}
-
-		xAxisGroup.attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")")
-		 .transition()
-		 .call(xAxis);
-		
 		// create y axis group if it not exists
 		var yAxisGroup = chartGroup.select("g.yaxis_group");
 		if (yAxisGroup.empty()){
@@ -129,6 +136,16 @@ d3.gantt = function() {
 		}
 
 		categoryAxisRenderer.draw(yAxisGroup);
+
+    	// build x axis
+		var xAxisGroup = chartGroup.select("g.xaxis_group");
+		if (xAxisGroup.empty()){
+			xAxisGroup = chartGroup.append("g").attr("class", "xaxis_group")
+		}
+
+		xAxisGroup.attr("transform", "translate(0, " + (getChartHeight() - margin.top - margin.bottom) + ")")
+		 .transition()
+		 .call(xAxis);
     }
 
     var drawGrid = function(){
@@ -164,12 +181,8 @@ d3.gantt = function() {
 			.enter()
 			.append("svg")
 			.attr("class", "chart")
-			.attr("width", width + margin.left + margin.right)
-			.attr("height", height + margin.top + margin.bottom)
 			.append("g")
 			.attr("class", "gantt-chart")
-			.attr("width", width + margin.left + margin.right)
-			.attr("height", height + margin.top + margin.bottom)
 			.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 		
 		var barGroup = chartGroup.append("g").attr("class", "gantt-bars");
@@ -505,9 +518,10 @@ d3.categoryAxisRenderer = function(){
 	var categories = [];
 	/* Each position stores an array with two items, tasksBand_height and milestonesBand_height*/
 	var categoriesRanges = {};
+	var calculatedLength = 0;
 
 	var config = {
-		"axisLength": 200,
+		"axisLength": null,
 		"barHeight" : 15,
 		"barPadding" : 5,
 		"barMargin" : 5,
@@ -532,6 +546,7 @@ d3.categoryAxisRenderer = function(){
 			categoriesRanges[category] = { "taskIni": ini, "taskEnd": (ini +taskBandH), "mStoneIni": (ini + taskBandH),  "mStoneEnd": end } ;
 			ini = end;
 		}
+		calculatedLength = end;
 		return categoryAxisRenderer;
 	};
 
@@ -541,11 +556,11 @@ d3.categoryAxisRenderer = function(){
 		for (var c= 0; c < categories.length; c++){
 			category = categories[c];
 			range = getCategoryRange(category);
-			ticks.push(range[0]);
+			ticks.push(scaleValue(range[0]));
 		}
 		if(range != null){
 			// last tick
-			ticks.push(range[1]);
+			ticks.push(scaleValue(range[1]));
 		}
 		return ticks;
 	}
@@ -568,7 +583,7 @@ d3.categoryAxisRenderer = function(){
 				return null;
 			}
 		}
-		return ypos;
+		return scaleValue(ypos);
 	}
 
 	/* Draws axis hanging on the svg node passed as parameter */
@@ -581,7 +596,7 @@ d3.categoryAxisRenderer = function(){
     		.attr("x1","0")
     		.attr("y1","0")
     		.attr("x2","0")
-    		.attr("y2",config.axisLength)
+    		.attr("y2",scaleValue(calculatedLength))
     		.attr("class", "axisY")
     		.attr("style","stroke:black");
 
@@ -628,8 +643,17 @@ d3.categoryAxisRenderer = function(){
 	var catGroupTranslation = function(d){
 		var range = getCategoryRange(d);
 		var ypos = range[0] + (range[1]-range[0])/2;
-		return "translate(0," + ypos+ ')'
 
+		return "translate(0," + scaleValue(ypos)+ ')'
+
+	}
+
+	var scaleValue = function(value){
+		var proportion = 1;
+		if (config.axisLength != null && calculatedLength >0){
+			proportion = config.axisLength  /calculatedLength;
+		}
+		return value * proportion;
 	}
 
 	var getCategoryRange  = function(category){
@@ -683,6 +707,10 @@ d3.categoryAxisRenderer = function(){
 	categoryAxisRenderer.configValue = function(property, value) {
 		config[property]=value;
 		return categoryAxisRenderer;
+    };
+
+	categoryAxisRenderer.calculatedLength = function() {
+		return calculatedLength;
     };
 
 
