@@ -56,7 +56,7 @@ gantt();
 aRenderer = gantt.categoryAxisRenderer();
 
 function changeTimeDomain(timeDomainString) {
-    this.timeDomainString = timeDomainString;
+/*    this.timeDomainString = timeDomainString;
     switch (timeDomainString) {
     case "1hr":
 	format = "%H:%M:%S";
@@ -85,15 +85,20 @@ function changeTimeDomain(timeDomainString) {
 
     case "1month":
     	format = "%d/%B";
-    	gantt.timeDomain([ d3.time.day.offset(getEndDate(), -30), getEndDate() ]);
+        // gantt.timeDomain([ d3.time.day.offset(getEndDate(), -30), getEndDate() ]);
+        gantt.timeDomain([ new Date(2014, 1,4), getEndDate() ]);
     	break;
 
     default:
 	format = "%H:%M"
 
     }
+*/
+    // gantt.timeDomain([ new Date(2014, 1,4), getEndDate() ]);
+    gantt.timeDomain([ d3.time.day.offset(getEndDate(), -10), getEndDate() ]);
+
+    format = "%d/%B";
     gantt.tickFormat(format);
-    gantt.draw(tasks);
 }
 
 function getEndDate() {

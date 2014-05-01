@@ -32,7 +32,7 @@ d3.gantt = function() {
     var categoryAxisRenderer = d3.categoryAxisRenderer();
 
     var onTaskClickHander = function(d){
-    	alert(d.id + " selected!!!")
+    	// alert(d.id + " selected!!!")
     }
 
 
@@ -54,6 +54,12 @@ d3.gantt = function() {
     var mileStoneTransform = function(d) {
     	var xpos = x(d.date)
     	var ypos = categoryAxisRenderer.position(d);
+    	return "translate(" + xpos + "," + ypos + ")";
+    };
+
+    var dateLineTransform = function(d) {
+    	var xpos = x(d.date)
+    	var ypos = 0;
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
@@ -191,31 +197,45 @@ d3.gantt = function() {
      * draws datelines on svg canvas
      */
     var drawDateLines = function (dateLines){
+		var visibleDL = dateLines.filter(isDLVisible);
 		var barGroup = getChartGroup().select(".gantt-bars");
-		
-    	barGroup.selectAll("line").data(dateLines,function(d) { return d.date; })
-    		.enter()
-    		.append("line")
-    		.attr("x1",function (d) { return x(d.date);})
+
+		// remove previous objecs
+		barGroup.selectAll("g.g_dateline").remove();
+
+		// create new graphic objects
+		var taskGSelection = barGroup.selectAll("g").data(visibleDL,function(d) { return d.date; });
+
+		var group = taskGSelection.enter().append("g")
+		 	.attr("class", "g_dateline") 
+		 	.attr("y", 0)
+			 .attr("height", height)
+			 .attr("width", 10)
+		 	 .attr("transform", dateLineTransform);
+
+    	group.append("line")
+    		.attr("x1","0")
     		.attr("y1","0")
-    		.attr("x2",function (d) { return x(d.date);})
+    		.attr("x2","0")
     		.attr("y2",height)
     		.attr("style",function (d) { return d.style;});
     }
     
     var drawMilestones = function (mileStones){
+
+		var visibleMs = mileStones.filter(isMsVisible);
+
 		var chartGroup = getChartGroup();
 		var barGroup =  chartGroup.select(".gantt-bars");
-		var taskGSelection = barGroup.selectAll("g.mileStone").data(mileStones,mskeyFunction);
 
-		// update position to already drawn milestones
-		taskGSelection
-		 .attr("transform", mileStoneTransform);
-		
+		// delete previous svg objects
+		barGroup.selectAll("g.g_mileStone").remove();
+
+		// create new graphic objects
+		var taskGSelection = barGroup.selectAll("g.g_mileStone").data(visibleMs,mskeyFunction);
+
 		var group = taskGSelection.enter().append("g")
-			.attr("rx", 5)
-	    	.attr("ry", 5)
-		 	.attr("class", "mileStone") 
+		 	.attr("class", "g_mileStone") 
 		 	.attr("y", 0)
 		 	.attr("transform", mileStoneTransform);
 
@@ -223,6 +243,7 @@ d3.gantt = function() {
     	group.append("circle")
     		.attr("cx",0)
     		.attr("cy","0")
+		 	.attr("class", "mileStone") 
     		.attr("r",mileStoneRadius)
     		.attr("stroke","black")
     		.attr("stroke-width","3");
@@ -234,31 +255,48 @@ d3.gantt = function() {
 			.attr("fill","black")
 			.text(function(d){ return d.label;})
     }
+
+    /* checks if a task is visible */
+    var isTaskVisible = function(d){
+    	return  (d.endDate > timeDomainStart) && (d.startDate < timeDomainEnd);
+    }
+
+    var isMsVisible = function(d){
+    	return (d.date >= timeDomainStart) && (d.date <= timeDomainEnd);
+    }
+
+    var isDLVisible = function(d){
+    	console.log(d)
+    	console.log(d.date + " -> " + ((d.date >= timeDomainStart) && (d.date <= timeDomainEnd)));
+    	return (d.date >= timeDomainStart) && (d.date <= timeDomainEnd);
+    }
+
+    var calculateBarWidth = function (d){
+    	var startDate = Math.max(timeDomainStart, d.startDate);
+    	var endDate = Math.min(timeDomainEnd, d.endDate);
+		var width =  (x(endDate) - x(startDate)); 
+		return width;
+    }
     
 	var drawTasks = function (tasks){
 
+		var visibleTasks = tasks.filter(isTaskVisible);
+
 		var chartGroup = getChartGroup();
 		var barGroup =  chartGroup.select(".gantt-bars");
-		var taskGSelection = barGroup.selectAll("g").data(tasks,keyFunction);
 
-		// update position to already drawn bars
-		taskGSelection
-		 .attr("transform", taskBarTransform);
+		// remove all previous svg objects
+		barGroup.selectAll("g").remove();
 
+		// append new graphics
+		var taskGSelection = barGroup.selectAll("g.g_task").data(visibleTasks,keyFunction);
 		var group = taskGSelection.enter().append("g")
-		 .attr("rx", 5)
-		 .attr("ry", 5)
-		 .attr("class", function(d){ 
-		     if(taskStatus[d.status] == null){ return "bar";}
-		     return taskStatus[d.status];
-		     }) 
+		 .attr("class","g_task") 
 		 .attr("y", 0)
 		 .attr("transform", taskBarTransform)
 		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
-		 .attr("width", function(d) { 
-		     return (x(d.endDate) - x(d.startDate)); 
-		     })
-		 .on("click", onTaskClickHander)
+		 .attr("width", calculateBarWidth)
+		 .on("click", onTaskClickHander);
 
 		// add bar's rect
 		group.append("rect")
@@ -270,9 +308,7 @@ d3.gantt = function() {
 		     }) 
 		 .attr("y", 0)
 		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
-		 .attr("width", function(d) { 
-		     return (x(d.endDate) - x(d.startDate)); 
-		     });
+		 .attr("width", calculateBarWidth);
 
 		// add labels
 		group.append("text")
