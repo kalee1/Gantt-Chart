@@ -16,7 +16,7 @@ d3.gantt = function() {
 		left : 150
     };
     //var height = document.body.clientHeight - margin.top - margin.bottom-5;
-    var height = null;
+    var height = null;// 500;
     var width = document.body.clientWidth - margin.right - margin.left-5;
     var mileStoneRadius = 2;
 
@@ -31,6 +31,7 @@ d3.gantt = function() {
     //
     var overlappingResolver = d3.overlappingResolver();
     var categoryAxisRenderer = d3.categoryAxisRenderer();
+    var timeAxisRenderer = d3.timeAxisRenderer();
 
     var onTaskClickHander = function(d){
     	// alert(d.id + " selected!!!")
@@ -44,7 +45,6 @@ d3.gantt = function() {
     	} else {
     		chartHeigth = categoryAxisRenderer.calculatedLength();
     	}
-    	console.log("chartHeigth: " + chartHeigth)
     	return chartHeigth;
     }
 
@@ -59,26 +59,26 @@ d3.gantt = function() {
     }
 
     var taskBarTransform = function(d) {
-    	var xpos = x(d.startDate)
+    	var xpos = timeAxisRenderer.position(d.startDate)
 		var ypos = categoryAxisRenderer.position(d);
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
     var mileStoneTransform = function(d) {
-    	var xpos = x(d.date)
+    	var xpos = timeAxisRenderer.position(d.date)
     	var ypos = categoryAxisRenderer.position(d);
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
     var dateLineTransform = function(d) {
-    	var xpos = x(d.date)
+    	var xpos = timeAxisRenderer.position(d.date)
     	var ypos = 0;
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
-    var x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
-    var xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
-	    .tickSize(8).tickPadding(8);
+    // var x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
+    // var xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
+	   //  .tickSize(8).tickPadding(8);
 
 	/**
 		Selects root chart "g" node for current gantt chart.
@@ -104,17 +104,22 @@ d3.gantt = function() {
 			return a.startDate - b.startDate;
 		    });
 		    timeDomainStart = tasks[0].startDate;
+
+		    timeAxisRenderer.domain([timeDomainStart, timeDomainEnd]);
 		}
     };
 
     var configureAxisDomain = function() {
-		x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
-		xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
-			.tickSize(8).tickPadding(8);
+		// x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
+		// xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
+		// 	.tickSize(8).tickPadding(8);
+
+		timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(d3.time.format(tickFormat)).configValue("axisLength",width)
+		timeAxisRenderer.init();
 
 		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories);
 		if(height != null){
-			var yAxisHeight = height - margin.top - margin.bottom;
+			var yAxisHeight = height;
 			categoryAxisRenderer.configValue("axisLength", yAxisHeight);
 		}
 		categoryAxisRenderer.init();
@@ -141,17 +146,19 @@ d3.gantt = function() {
 		var xAxisGroup = chartGroup.select("g.xaxis_group");
 		if (xAxisGroup.empty()){
 			xAxisGroup = chartGroup.append("g").attr("class", "xaxis_group")
+				.attr("transform", "translate(0, " + getChartHeight() + ")")
 		}
+		timeAxisRenderer.draw(xAxisGroup)
 
-		xAxisGroup.attr("transform", "translate(0, " + (getChartHeight() - margin.top - margin.bottom) + ")")
-		 .transition()
-		 .call(xAxis);
+		//  .transition()
+		//  .call(xAxis);
     }
 
     var drawGrid = function(){
 		var chartGroup = getChartGroup();
 
 		// draw x axis grid lines
+		chartGroup.selectAll("line.gridX").remove();
 		chartGroup.selectAll("line.gridX")
 		  .data(x.ticks(10))
 		  .enter().append("line")
@@ -159,7 +166,7 @@ d3.gantt = function() {
 		  .attr("x1", x)
 		  .attr("x2", x)
 		  .attr("y1", 0)
-		  .attr("y2", (height - margin.top - margin.bottom) )
+		  .attr("y2", getChartHeight() )
 		  .style("stroke", "#ccc");		
 
 		// draw y axis grid lines
@@ -222,7 +229,7 @@ d3.gantt = function() {
 		var group = taskGSelection.enter().append("g")
 		 	.attr("class", "g_dateline") 
 		 	.attr("y", 0)
-			 .attr("height", height)
+			 .attr("height", getChartHeight())
 			 .attr("width", 10)
 		 	 .attr("transform", dateLineTransform);
 
@@ -230,8 +237,14 @@ d3.gantt = function() {
     		.attr("x1","0")
     		.attr("y1","0")
     		.attr("x2","0")
-    		.attr("y2",height)
+    		.attr("y2",getChartHeight())
     		.attr("style",function (d) { return d.style;});
+
+    	group.append("text")
+    		.attr("x","7")
+    		.attr("y",getChartHeight() + 5)
+    		.attr("style","writing-mode:tb")
+    		.text(function (d) { var format = d3.time.format('%d/%m/%Y'); return format(d.date);})
     }
     
     var drawMilestones = function (mileStones){
@@ -285,7 +298,7 @@ d3.gantt = function() {
     var calculateBarWidth = function (d){
     	var startDate = Math.max(timeDomainStart, d.startDate);
     	var endDate = Math.min(timeDomainEnd, d.endDate);
-		var width =  (x(endDate) - x(startDate)); 
+		var width =  (timeAxisRenderer.position(endDate) - timeAxisRenderer.position(startDate)); 
 		return width;
     }
     
@@ -481,27 +494,58 @@ d3.gantt = function() {
 d3.timeAxisRenderer = function(){
 
 	var scale = 1;
+	var timeDomain = []
 	var config = {
 		"axisLength": 600
 	};
+	var x = null;
+	var xAxis = null;
+	var tickFormat = null;
 
 	/* PUBLIC METHODS */
 
 	/* Calculates categories ranges */
 	timeAxisRenderer.init  = function(){	
+		x = d3.time.scale().domain([ timeDomain[0], timeDomain[1] ]).range([ 0, config.axisLength ]).clamp(true);
+		xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat))
+			.tickSubdivide(true).tickSize(8).tickPadding(8);
 	}
+
 	timeAxisRenderer.ticks = function(){
 	}
 	/* Calculates object rendering position in axis */
 	timeAxisRenderer.position = function(d){
+		return x(d)
 	}
 	/* Draws axis hanging on the svg node passed as parameter */
 	timeAxisRenderer.draw  = function(node){
+		xAxisGroup.transition().call(xAxis);
+
 	}
 
 	/* PRIVATE METHODS */
 
 	/* GETTER / SETTER METHODS */
+
+	timeAxisRenderer.domain = function(value){
+		if (!arguments.length)
+		    return timeDomain;
+		timeDomain = value;
+		return timeAxisRenderer;
+	}
+
+	timeAxisRenderer.config = function(value) {
+		if (!arguments.length)
+		    return config;
+		// copy values in config object
+		for(var k in config) config[k]=value[k];
+		return timeAxisRenderer;
+    };
+
+	timeAxisRenderer.configValue = function(property, value) {
+		config[property]=value;
+		return timeAxisRenderer;
+    };
 
 	function timeAxisRenderer(){
 	};
@@ -589,9 +633,9 @@ d3.categoryAxisRenderer = function(){
 	/* Draws axis hanging on the svg node passed as parameter */
 	categoryAxisRenderer.draw  = function(node){
 		// remove axis if exists
-		node.selectAll().remove();
 
 		// draw axis line
+		node.selectAll("line.axisY").remove();
 		node.append("line")
     		.attr("x1","0")
     		.attr("y1","0")
