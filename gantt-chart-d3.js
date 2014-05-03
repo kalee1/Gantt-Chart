@@ -160,11 +160,11 @@ d3.gantt = function() {
 		// draw x axis grid lines
 		chartGroup.selectAll("line.gridX").remove();
 		chartGroup.selectAll("line.gridX")
-		  .data(x.ticks(10))
+		  .data(timeAxisRenderer.ticks(),function(d){ return d;})
 		  .enter().append("line")
 		  .attr("class", "gridX")
-		  .attr("x1", x)
-		  .attr("x2", x)
+		  .attr("x1", function(d){ return d;})
+		  .attr("x2", function(d){ return d;})
 		  .attr("y1", 0)
 		  .attr("y2", getChartHeight() )
 		  .style("stroke", "#ccc");		
@@ -512,6 +512,9 @@ d3.timeAxisRenderer = function(){
 	}
 
 	timeAxisRenderer.ticks = function(){
+		domainValues = x.ticks(10)
+		var tickPositions = domainValues.map(function(d){ return x(d);})
+		return tickPositions;
 	}
 	/* Calculates object rendering position in axis */
 	timeAxisRenderer.position = function(d){
@@ -519,8 +522,8 @@ d3.timeAxisRenderer = function(){
 	}
 	/* Draws axis hanging on the svg node passed as parameter */
 	timeAxisRenderer.draw  = function(node){
-		xAxisGroup.transition().call(xAxis);
-
+		asdfdsf
+		node.transition().call(xAxis);
 	}
 
 	/* PRIVATE METHODS */
@@ -545,6 +548,13 @@ d3.timeAxisRenderer = function(){
 	timeAxisRenderer.configValue = function(property, value) {
 		config[property]=value;
 		return timeAxisRenderer;
+    };
+
+    timeAxisRenderer.tickFormat = function(value) {
+	if (!arguments.length)
+	    return tickFormat;
+	tickFormat = value;
+	return timeAxisRenderer;
     };
 
 	function timeAxisRenderer(){
