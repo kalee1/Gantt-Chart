@@ -105,7 +105,7 @@ d3.gantt = function() {
 		    });
 		    timeDomainStart = tasks[0].startDate;
 
-		    timeAxisRenderer.domain([timeDomainStart, timeDomainEnd]);
+		    timeAxisRenderer.domain([timeDomainStart, timeDomainEnd]).init();
 		}
     };
 
@@ -113,8 +113,7 @@ d3.gantt = function() {
 		// x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
 		// xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
 		// 	.tickSize(8).tickPadding(8);
-
-		timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(d3.time.format(tickFormat)).configValue("axisLength",width)
+		timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(tickFormat).configValue("axisLength",width)
 		timeAxisRenderer.init();
 
 		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories);
@@ -149,9 +148,7 @@ d3.gantt = function() {
 				.attr("transform", "translate(0, " + getChartHeight() + ")")
 		}
 		timeAxisRenderer.draw(xAxisGroup)
-
-		//  .transition()
-		//  .call(xAxis);
+		// xAxisGroup.transition().call(xAxis);
     }
 
     var drawGrid = function(){
@@ -500,15 +497,15 @@ d3.timeAxisRenderer = function(){
 	};
 	var x = null;
 	var xAxis = null;
-	var tickFormat = null;
+    var formatPattern = "%d/%b";
 
 	/* PUBLIC METHODS */
 
 	/* Calculates categories ranges */
 	timeAxisRenderer.init  = function(){	
 		x = d3.time.scale().domain([ timeDomain[0], timeDomain[1] ]).range([ 0, config.axisLength ]).clamp(true);
-		xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat))
-			.tickSubdivide(true).tickSize(8).tickPadding(8);
+		var formatter = d3.time.format(new String(formatPattern));
+		xAxis = d3.svg.axis().scale(x).orient("bottom").tickSubdivide(true).tickSize(8).tickPadding(8).tickFormat(formatter);
 	}
 
 	timeAxisRenderer.ticks = function(){
@@ -522,7 +519,6 @@ d3.timeAxisRenderer = function(){
 	}
 	/* Draws axis hanging on the svg node passed as parameter */
 	timeAxisRenderer.draw  = function(node){
-		asdfdsf
 		node.transition().call(xAxis);
 	}
 
@@ -551,17 +547,16 @@ d3.timeAxisRenderer = function(){
     };
 
     timeAxisRenderer.tickFormat = function(value) {
-	if (!arguments.length)
-	    return tickFormat;
-	tickFormat = value;
-	return timeAxisRenderer;
+		if (!arguments.length)
+	    	return formatPattern;
+		formatPattern = value;
+		return timeAxisRenderer;
     };
 
 	function timeAxisRenderer(){
 	};
 	
 	return timeAxisRenderer;
-
 }
 
 
