@@ -1,12 +1,45 @@
 /**
- * @author Dimitry Kudrayvtsev
+ * @author Gustavo Río Briones
+ * Based on work of Dimitry Kudrayvtsev
  * @version 2.1
+ */
+
+ /*
+ CSS class selectors:
+	svg.chart
+		g.gantt-chart
+			g.gantt-bars
+				g.g_task
+					rect.task-bar
+					text.task-label
+				g.g_mileStone
+					circle.milestone-mark
+					text.milestone-label
+				g.g_dateline
+					line.dateline-line
+					text.dateline-label
+			g.xaxis-group
+				line.axisX
+				line.tickX minor
+				g.tickX major
+					line
+					text
+			g.yaxis-group
+				line.axisY
+				line.tickY
+				g
+					text.tickY-label 
+			g.grid-group
+				line.gridX
+				line.gridY
+
  */
 
 d3.gantt = function() {
     // Chart rendering properties
     var FIT_TIME_DOMAIN_MODE = "fit";
     var FIXED_TIME_DOMAIN_MODE = "fixed";
+
     var id = Math.floor((Math.random()*1000000)+1);
     
     var margin = {
@@ -24,7 +57,6 @@ d3.gantt = function() {
     var timeDomainEnd = d3.time.hour.offset(new Date(),+3);
     var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
     var categories = [];
-    var taskStatus = [];
     var tasks = [];
     var mileStones = [];
     var dateLines = [];
@@ -76,10 +108,6 @@ d3.gantt = function() {
     	return "translate(" + xpos + "," + ypos + ")";
     };
 
-    // var x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
-    // var xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
-	   //  .tickSize(8).tickPadding(8);
-
 	/**
 		Selects root chart "g" node for current gantt chart.
 	*/
@@ -110,16 +138,12 @@ d3.gantt = function() {
     };
 
     var configureAxisDomain = function() {
-		// x = d3.time.scale().domain([ timeDomainStart, timeDomainEnd ]).range([ 0, width ]).clamp(true);
-		// xAxis = d3.svg.axis().scale(x).orient("bottom").tickFormat(d3.time.format(tickFormat)).tickSubdivide(true)
-		// 	.tickSize(8).tickPadding(8);
 		timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(tickFormat).configValue("axisLength",width)
 		timeAxisRenderer.init();
 
 		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories);
 		if(height != null){
-			var yAxisHeight = height;
-			categoryAxisRenderer.configValue("axisLength", yAxisHeight);
+			categoryAxisRenderer.configValue("axisLength", height);
 		}
 		categoryAxisRenderer.init();
     };
@@ -134,29 +158,34 @@ d3.gantt = function() {
 		var chartGroup = getChartGroup();
 
 		// create y axis group if it not exists
-		var yAxisGroup = chartGroup.select("g.yaxis_group");
+		var yAxisGroup = chartGroup.select("g.yaxis-group");
 		if (yAxisGroup.empty()){
-			yAxisGroup = chartGroup.append("g").attr("class", "yaxis_group");
+			yAxisGroup = chartGroup.append("g").attr("class", "yaxis-group");
 		}
 
 		categoryAxisRenderer.draw(yAxisGroup);
 
     	// build x axis
-		var xAxisGroup = chartGroup.select("g.xaxis_group");
+		var xAxisGroup = chartGroup.select("g.xaxis-group");
 		if (xAxisGroup.empty()){
-			xAxisGroup = chartGroup.append("g").attr("class", "xaxis_group")
-				.attr("transform", "translate(0, " + getChartHeight() + ")")
+			xAxisGroup = chartGroup.append("g").attr("class", "xaxis-group")
 		}
+		xAxisGroup.attr("transform", "translate(0, " + getChartHeight() + ")")
+
 		timeAxisRenderer.draw(xAxisGroup)
 		// xAxisGroup.transition().call(xAxis);
     }
 
     var drawGrid = function(){
-		var chartGroup = getChartGroup();
+		var gridGroup = getChartGroup().select("g.grid-group")
+		if(gridGroup.empty()){
+			// create grid group
+			gridGroup = getChartGroup().append("g").attr("class","grid-group")
+		}
 
 		// draw x axis grid lines
-		chartGroup.selectAll("line.gridX").remove();
-		chartGroup.selectAll("line.gridX")
+		gridGroup.selectAll("line.gridX").remove();
+		gridGroup.selectAll("line.gridX")
 		  .data(timeAxisRenderer.ticks(),function(d){ return d;})
 		  .enter().append("line")
 		  .attr("class", "gridX")
@@ -169,8 +198,8 @@ d3.gantt = function() {
 		// draw y axis grid lines
 		var gridWidth = width + margin.left + margin.right;
 
-		chartGroup.selectAll("line.gridY").remove();
-		chartGroup.selectAll("line.gridY").data(categoryAxisRenderer.ticks(), function(d){ return d;}).enter()
+		gridGroup.selectAll("line.gridY").remove();
+		gridGroup.selectAll("line.gridY").data(categoryAxisRenderer.ticks(), function(d){ return d;}).enter()
 		  .append("line")
 		  .attr("class", "gridY")
 		  .attr("x1", 0)
@@ -235,11 +264,13 @@ d3.gantt = function() {
     		.attr("y1","0")
     		.attr("x2","0")
     		.attr("y2",getChartHeight())
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "dateline-line";})
     		.attr("style",function (d) { return d.style;});
 
     	group.append("text")
     		.attr("x","7")
     		.attr("y",getChartHeight() + 5)
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "dateline-label";})
     		.attr("style","writing-mode:tb")
     		.text(function (d) { var format = d3.time.format('%d/%m/%Y'); return format(d.date);})
     }
@@ -255,10 +286,10 @@ d3.gantt = function() {
 		barGroup.selectAll("g.g_mileStone").remove();
 
 		// create new graphic objects
-		var taskGSelection = barGroup.selectAll("g.g_mileStone").data(visibleMs,mskeyFunction);
+		var taskGSelection = barGroup.selectAll("g.g_milestone").data(visibleMs,mskeyFunction);
 
 		var group = taskGSelection.enter().append("g")
-		 	.attr("class", "g_mileStone") 
+		 	.attr("class", "g_milestone") 
 		 	.attr("y", 0)
 		 	.attr("transform", mileStoneTransform);
 
@@ -266,16 +297,14 @@ d3.gantt = function() {
     	group.append("circle")
     		.attr("cx",0)
     		.attr("cy","0")
-		 	.attr("class", "mileStone") 
-    		.attr("r",mileStoneRadius)
-    		.attr("stroke","black")
-    		.attr("stroke-width","3");
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "milestone-mark";})
+    		.attr("r",mileStoneRadius);
 
 		// add labels
 		group.append("text")
 			.attr("x",  mileStoneRadius*2 +6)
 			.attr("y",  mileStoneRadius)
-			.attr("fill","black")
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "milestone-label";})
 			.text(function(d){ return d.label;})
     }
 
@@ -322,10 +351,7 @@ d3.gantt = function() {
 		group.append("rect")
 		 .attr("rx", 5)
 	     .attr("ry", 5)
-		 .attr("class", function(d){ 
-		     if(taskStatus[d.status] == null){ return "bar";}
-		     return taskStatus[d.status];
-		     }) 
+	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "task-bar";})
 		 .attr("y", 0)
 		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
 		 .attr("width", calculateBarWidth);
@@ -334,7 +360,7 @@ d3.gantt = function() {
 		group.append("text")
 			.attr("y", function(d) { return 3 + categoryAxisRenderer.config().barHeight /2; })
 			.attr("x", function(d) { return 5; })
-			.attr("fill","black")
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "task-label";})
 			.text(function(d){ return d.label;})
     }
 

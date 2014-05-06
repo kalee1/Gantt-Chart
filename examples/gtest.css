@@ -4,12 +4,31 @@ html,body,#wrapper {
 	margin: 0px;
 }
 
+
+
+.task-bar {
+	fill: grey;
+}
+
+.task-label{
+	fill:white;
+}
+
+.milestone-mark {
+	stroke: black;
+	stroke-width: 3;
+}
+
+.milestone-label {
+	fill: grey;
+}
+
 .chart {
 	font-family: Arial, sans-serif;
 	font-size: 12px;
 }
 
-.xaxis_group path,.xaxis_group line {
+.xaxis-group path,.xaxis-group line {
 	fill: none;
 	stroke: #000;
 	shape-rendering: crispEdges;
@@ -43,10 +62,10 @@ html,body,#wrapper {
 	z-index: 10;
 	padding: 10px 50px 10px 10px;
 	color: #fff;
-	background:
+/*	background:
 		url('http://dk8996.github.io/Gantt-Chart/images/blacktocat.png')
 		#0090ff no-repeat 95% 50%;
-	font-weight: 700;
+*/	font-weight: 700;
 	box-shadow: 0 0 10px rgba(0, 0, 0, .5);
 	border-bottom-left-radius: 2px;
 	border-bottom-right-radius: 2px;
@@ -61,10 +80,10 @@ html,body,#wrapper {
 	z-index: 10;
 	padding: 10px 50px 10px 10px;
 	color: #fff;
-	background:
+/*	background:
 		url('http://dk8996.github.io/Gantt-Chart/images/twitter.png')
 		#0090ff no-repeat 95% 50%;
-	font-weight: 700;
+*/	font-weight: 700;
 	box-shadow: 0 0 10px rgba(0, 0, 0, .5);
 	border-bottom-left-radius: 2px;
 	border-bottom-right-radius: 2px;
