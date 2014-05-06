@@ -46,6 +46,16 @@ var minDate = tasks[0].startDate;
 var format = "%B" //"%H:%M";
 var timeDomainString = "1month";
 
+
+
+for(i=0; i < 10; i++){
+    for(j=0; j<2;j++){
+        tasks.push({"id": 100 + i,"startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"category":"Project_" + i, "label":"task" +(100+i),"style":"fill:red"});
+    }
+    categories.push("Project_" + i)
+}
+console.log("data created")
+
 var gantt = d3.gantt().categories(categories).tickFormat(format);
 var margin = {
      top : 20,
