@@ -4,7 +4,9 @@ html,body,#wrapper {
 	margin: 0px;
 }
 
-
+.tickY{
+	stroke: black;
+}
 
 .task-bar {
 	fill: grey;

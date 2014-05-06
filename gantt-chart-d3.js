@@ -19,7 +19,7 @@
 					line.dateline-line
 					text.dateline-label
 			g.xaxis-group
-				line.axisX
+				path.domain
 				line.tickX minor
 				g.tickX major
 					line
@@ -683,7 +683,7 @@ d3.categoryAxisRenderer = function(){
 			.append("text")
 			.attr("x", "-5")
 			.attr("style", "text-anchor: end")
-			.attr("class", "yaxis_cat_labels")
+			.attr("class", "tickY-label")
 			.text(function(d){ return d;});
 
 		// remove previous tips and draw a line for each tip
@@ -695,7 +695,7 @@ d3.categoryAxisRenderer = function(){
     		.attr("y1",function(d){ return d;})
     		.attr("x2","-5")
     		.attr("y2",function(d){ return d;})
-    		.attr("style","stroke:black");
+    		;
 
 		return categoryAxisRenderer;
 	};
