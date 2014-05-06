@@ -1,3 +1,6 @@
+
+
+
 var tasks = [
 {"id": "1","startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"category":"E Job","status":"RUNNING", "label":"task1"},
 {"id": "11","startDate":new Date(2014,1,3),"endDate":new Date(2014,1,5),"category":"E Job","status":"RUNNING", "label":"task1.1"},
@@ -38,7 +41,7 @@ var minDate = tasks[0].startDate;
 var format = "%B" //"%H:%M";
 var timeDomainString = "1month";
 
-var gantt = d3.gantt().categories(categories).taskStatus(taskStatus).tickFormat(format);
+var gantt = d3.gantt().categories(categories).tickFormat(format);
 var margin = {
      top : 20,
      right : 40,

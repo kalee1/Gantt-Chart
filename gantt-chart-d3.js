@@ -435,13 +435,6 @@ d3.gantt = function() {
     };
 
     
-    gantt.taskStatus = function(value) {
-	if (!arguments.length)
-	    return taskStatus;
-	taskStatus = value;
-	return gantt;
-    };
-
     gantt.width = function(value) {
 	if (!arguments.length)
 	    return width;
