@@ -12,10 +12,20 @@ html,body,#wrapper {
 	fill: grey;
 }
 
-.task-label{
-	fill:white;
+.task-bar:hover {
+	fill: dark;
 }
 
+.task-label {
+	fill: white;
+}
+
+.bluetask-bar {
+	fill:blue;
+}
+.bluetask-label {
+	fill:grey;
+}
 .milestone-mark {
 	stroke: black;
 	stroke-width: 3;
@@ -36,25 +46,6 @@ html,body,#wrapper {
 	shape-rendering: crispEdges;
 }
 
-.bar {
-	fill: #33b5e5;
-}
-
-.bar-failed {
-	fill: #CC0000;
-}
-
-.bar-running {
-	fill: #669900;
-}
-
-.bar-succeeded {
-	fill: #33b5e5;
-}
-
-.bar-killed {
-	fill: #ffbb33;
-}
 
 #forkme_banner {
 	display: block;

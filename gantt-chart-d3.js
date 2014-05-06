@@ -48,20 +48,24 @@ d3.gantt = function() {
 		bottom : 20,
 		left : 150
     };
-    //var height = document.body.clientHeight - margin.top - margin.bottom-5;
-    var height = null;// 500;
-    var width = document.body.clientWidth - margin.right - margin.left-5;
+
+    var height = null; // if no height provided, chart height will be calculated with task bar height
+    var width = null;  // if no width provided, the chart will expand to screen width
     var mileStoneRadius = 2;
 
     var timeDomainStart = d3.time.day.offset(new Date(),-3);
     var timeDomainEnd = d3.time.hour.offset(new Date(),+3);
     var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
+
+    // model arrays
     var categories = [];
     var tasks = [];
     var mileStones = [];
     var dateLines = [];
-    //
+
+    // helper to provide task overlapping treatement
     var overlappingResolver = d3.overlappingResolver();
+    // axis renderers
     var categoryAxisRenderer = d3.categoryAxisRenderer();
     var timeAxisRenderer = d3.timeAxisRenderer();
 
@@ -78,6 +82,16 @@ d3.gantt = function() {
     		chartHeigth = categoryAxisRenderer.calculatedLength();
     	}
     	return chartHeigth;
+    }
+
+    var getChartWidth = function(){
+    	var chartWidth = null;
+    	if(width != null && width > 0){
+    		chartWidth = width;
+    	} else {
+    		chartWidth = document.body.clientWidth - margin.right - margin.left-5
+    	}
+    	return chartWidth;
     }
 
 
@@ -138,7 +152,7 @@ d3.gantt = function() {
     };
 
     var configureAxisDomain = function() {
-		timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(tickFormat).configValue("axisLength",width)
+		timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(tickFormat).configValue("axisLength",getChartWidth())
 		timeAxisRenderer.init();
 
 		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories);
@@ -196,7 +210,7 @@ d3.gantt = function() {
 		  .style("stroke", "#ccc");		
 
 		// draw y axis grid lines
-		var gridWidth = width + margin.left + margin.right;
+		var gridWidth = getChartWidth() + margin.left + margin.right;
 
 		gridGroup.selectAll("line.gridY").remove();
 		gridGroup.selectAll("line.gridY").data(categoryAxisRenderer.ticks(), function(d){ return d;}).enter()
@@ -264,13 +278,13 @@ d3.gantt = function() {
     		.attr("y1","0")
     		.attr("x2","0")
     		.attr("y2",getChartHeight())
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "dateline-line";})
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-line"; else return "dateline-line";})
     		.attr("style",function (d) { return d.style;});
 
     	group.append("text")
     		.attr("x","7")
     		.attr("y",getChartHeight() + 5)
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "dateline-label";})
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "dateline-label";})
     		.attr("style","writing-mode:tb")
     		.text(function (d) { var format = d3.time.format('%d/%m/%Y'); return format(d.date);})
     }
@@ -297,14 +311,15 @@ d3.gantt = function() {
     	group.append("circle")
     		.attr("cx",0)
     		.attr("cy","0")
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "milestone-mark";})
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-mark"; else return "milestone-mark";})
+			.attr("style",function (d) { return d.style;})
     		.attr("r",mileStoneRadius);
 
 		// add labels
 		group.append("text")
 			.attr("x",  mileStoneRadius*2 +6)
 			.attr("y",  mileStoneRadius)
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "milestone-label";})
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-label"; else return "milestone-label";})
 			.text(function(d){ return d.label;})
     }
 
@@ -351,16 +366,17 @@ d3.gantt = function() {
 		group.append("rect")
 		 .attr("rx", 5)
 	     .attr("ry", 5)
-	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "task-bar";})
 		 .attr("y", 0)
 		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
-		 .attr("width", calculateBarWidth);
+		 .attr("width", calculateBarWidth)
+	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-bar"; else return "task-bar";})
+	     .attr("style",function (d) { return d.style;});
 
 		// add labels
 		group.append("text")
 			.attr("y", function(d) { return 3 + categoryAxisRenderer.config().barHeight /2; })
 			.attr("x", function(d) { return 5; })
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class; else return "task-label";})
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "task-label";})
 			.text(function(d){ return d.label;})
     }
 
