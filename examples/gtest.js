@@ -9,15 +9,20 @@ var tasks = [
 {"id": "3","startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"category":"E Job","label":"task3"}
 ];
 
+var mileStones = [
+    {"id": 1,"date":new Date(2014,1,7),"category":"E Job", "label":"deployment 1"},
+    {"id": 2,"date":new Date(2014,1,3),"category":"N Job", "label":"deployment 2"}
+];
+
 var dateLines = [
 	{"date":new Date(2014,1,8),"style":"stroke:rgb(255,0,0);stroke-width:2"},                
 	{"date":new Date(2014,1,12),"style":"stroke:rgb(120,120,0);stroke-width:2"}                
 ]
 
-var mileStones = [
-{"id": 1,"date":new Date(2014,1,7),"category":"E Job", "label":"deployment 1"},
-{"id": 2,"date":new Date(2014,1,3),"category":"N Job", "label":"deployment 2"}
-];
+function taskhandler(d){
+    console.log("logging action on task " + d.id + " " + d.label)
+}
+
 
 
 var taskStatus = {
@@ -52,7 +57,11 @@ gantt.margin(margin).timeDomainMode("fixed");
 
 changeTimeDomain(timeDomainString);
 
-gantt.tasks(tasks).mileStones(mileStones).dateLines(dateLines).draw();
+gantt.tasks(tasks).mileStones(mileStones).dateLines(dateLines)
+    .taskEventHandler("click", taskhandler)
+    .milestoneEventHandler("mouseover", taskhandler)
+    .datelineEventHandler("mouseover", taskhandler)
+gantt.draw();
 
 gantt();
 

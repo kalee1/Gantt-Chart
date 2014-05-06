@@ -53,9 +53,10 @@ d3.gantt = function() {
     var width = null;  // if no width provided, the chart will expand to screen width
     var mileStoneRadius = 2;
 
-    var timeDomainStart = d3.time.day.offset(new Date(),-3);
-    var timeDomainEnd = d3.time.hour.offset(new Date(),+3);
+    var timeDomainStart =null;
+    var timeDomainEnd = null;
     var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
+    var tickFormat = "%H:%M"; // default tick format
 
     // model arrays
     var categories = [];
@@ -69,10 +70,11 @@ d3.gantt = function() {
     var categoryAxisRenderer = d3.categoryAxisRenderer();
     var timeAxisRenderer = d3.timeAxisRenderer();
 
-    var onTaskClickHander = function(d){
-    	// alert(d.id + " selected!!!")
-    }
-
+    var eventHandlers = {
+    	"task": {},
+    	"milestone":{},
+    	"dateline":{}
+    };
 
     var getChartHeight = function(){
     	var chartHeigth = null;
@@ -93,9 +95,6 @@ d3.gantt = function() {
     	}
     	return chartWidth;
     }
-
-
-    var tickFormat = "%H:%M";
 
     var keyFunction = function(d) {
 		return "t_" + d.id;
@@ -128,6 +127,15 @@ d3.gantt = function() {
     var getChartGroup = function() {
 		var chartGroup = d3.select("body").selectAll("svg").data([id], function(d){ return d;}).selectAll(".gantt-chart");
 		return chartGroup;
+    }
+
+    var assignEvent = function (objectType, selection){
+    	handlers = eventHandlers[objectType];
+    	for(h in handlers){
+    		selection.on(h,function(d){ 
+    			handlers[h](d)
+    		})
+    	}
     }
 
 
@@ -271,7 +279,8 @@ d3.gantt = function() {
 		 	.attr("y", 0)
 			 .attr("height", getChartHeight())
 			 .attr("width", 10)
-		 	 .attr("transform", dateLineTransform);
+		 	 .attr("transform", dateLineTransform)
+		 	 .call(function(d){ assignEvent("dateline", d);});
 
     	group.append("line")
     		.attr("x1","0")
@@ -305,7 +314,9 @@ d3.gantt = function() {
 		var group = taskGSelection.enter().append("g")
 		 	.attr("class", "g_milestone") 
 		 	.attr("y", 0)
-		 	.attr("transform", mileStoneTransform);
+		 	.attr("transform", mileStoneTransform)
+		 	.call(function(d){ assignEvent("milestone", d);});
+
 
 		// add milestone mark
     	group.append("circle")
@@ -359,8 +370,7 @@ d3.gantt = function() {
 		 .attr("y", 0)
 		 .attr("transform", taskBarTransform)
 		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
-		 .attr("width", calculateBarWidth)
-		 .on("click", onTaskClickHander);
+		 .attr("width", calculateBarWidth);
 
 		// add bar's rect
 		group.append("rect")
@@ -370,7 +380,8 @@ d3.gantt = function() {
 		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
 		 .attr("width", calculateBarWidth)
 	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-bar"; else return "task-bar";})
-	     .attr("style",function (d) { return d.style;});
+	     .attr("style",function (d) { return d.style;})
+	     .call(function(d){ assignEvent("task", d);});
 
 		// add labels
 		group.append("text")
@@ -416,6 +427,10 @@ d3.gantt = function() {
 		return gantt;
     };
 
+    /*********************/
+    /** GETTER/SETTERS	**/
+    /*********************/
+
     gantt.margin = function(value) {
 	if (!arguments.length)
 	    return margin;
@@ -430,11 +445,6 @@ d3.gantt = function() {
 	return gantt;
     };
 
-    /**
-     * @param {string}
-     *                vale The value can be "fit" - the domain fits the data or
-     *                "fixed" - fixed domain.
-     */
     gantt.timeDomainMode = function(value) {
 	if (!arguments.length)
 	    return timeDomainMode;
@@ -512,6 +522,19 @@ d3.gantt = function() {
 		if (!arguments.length)
 		    return categoryAxisRenderer;
 		categoryAxisRenderer = value;
+		return gantt;
+	};
+
+    gantt.taskEventHandler = function(event, handler){
+    	eventHandlers["task"][event] = handler;
+		return gantt;
+	};
+    gantt.milestoneEventHandler = function(event, handler){
+    	eventHandlers["milestone"][event] = handler;
+		return gantt;
+	};
+    gantt.datelineEventHandler = function(event, handler){
+    	eventHandlers["dateline"][event] = handler;
 		return gantt;
 	};
 	
