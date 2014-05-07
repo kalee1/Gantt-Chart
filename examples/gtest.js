@@ -54,8 +54,6 @@ for(i=0; i < 10; i++){
     }
     categories.push("Project_" + i)
 }
-console.log("data created")
-
 var gantt = d3.gantt().categories(categories).tickFormat(format);
 var margin = {
      top : 20,
@@ -70,7 +68,8 @@ changeTimeDomain(timeDomainString);
 gantt.tasks(tasks).mileStones(mileStones).dateLines(dateLines)
     .taskEventHandler("click", taskhandler)
     .milestoneEventHandler("mouseover", taskhandler)
-    .datelineEventHandler("mouseover", taskhandler)
+    .datelineEventHandler("mouseover", taskhandler);
+
 gantt.draw();
 
 gantt();

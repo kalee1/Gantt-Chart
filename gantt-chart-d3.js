@@ -677,9 +677,9 @@ d3.categoryAxisRenderer = function(){
 		// check if object is a task or a milestone
 		if (hasOwnProperty(d, "startDate")){
 			// task
-	    	var numParallelTask = overlappingResolver.taskTotalOverlaps(d).length;
+	    	var numOverlappingTasks = overlappingResolver.taskTotalOverlaps(d);
 	    	var categoryTaskRange = getCategoryTasksRange(d.category)
-	    	var ypos = categoryTaskRange[0] + config.barMargin + numParallelTask*(config.barHeight + config.barPadding);
+	    	var ypos = categoryTaskRange[0] + config.barMargin + numOverlappingTasks*(config.barHeight + config.barPadding);
 		} else {
 			if (hasOwnProperty(d, "date")){
 				// milestone
@@ -862,7 +862,7 @@ d3.overlappingResolver = function(){
 
 		var numParallel = 0;
 		for (var t=0; t< taskList.length; t++){
-			numParallel = overlappingResolver.taskTotalOverlaps(taskList[t]).length + 1;
+			numParallel = overlappingResolver.taskTotalOverlaps(taskList[t]) + 1;
 			if(numParallel > maxParallel){
 				maxParallel = numParallel;
 			}
@@ -876,7 +876,7 @@ d3.overlappingResolver = function(){
 	};
 
 	/* get num of overlaps of current tasks joined with overlaps of overlapped tasks. */
-	overlappingResolver.taskTotalOverlaps = function (task){
+	overlappingResolver.taskTotalOverlapsOld = function (task){
 		var olp = [];
 		deepSearch(task.id, olp);
 
@@ -886,6 +886,18 @@ d3.overlappingResolver = function(){
 	    return uniqueValues;
 	};
 
+
+	overlappingResolver.taskTotalOverlaps = function (task){
+		var currentTaskId = task.id;
+		var hasNext = (overlaps[currentTaskId] != null && overlaps[currentTaskId].length > 0);
+		var numOverlaps = 0
+		while(hasNext){
+			currentTaskId = overlaps[currentTaskId][0];
+			numOverlaps++;
+			hasNext = (overlaps[currentTaskId] != null && overlaps[currentTaskId].length > 0);
+		}
+		return numOverlaps;
+	};
 
 	function deepSearch(element, stack){
 		if(!hasOwnProperty(overlaps, element)){
