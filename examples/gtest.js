@@ -6,6 +6,15 @@ var tasks = [
 {"id": "11","startDate":new Date(2014,1,3),"endDate":new Date(2014,1,5),"category":"E Job","label":"task1.1"},
 {"id": "2","startDate":new Date(2014,1,4),"endDate":new Date(2014,1,8),"category":"E Job","label":"task2","class":"bluetask"},
 {"id": "21","startDate":new Date(2014,1,7),"endDate":new Date(2014,1,8),"category":"E Job","label":"task2.1"},
+{"id": "22","startDate":new Date(2014,1,8),"endDate":new Date(2014,1,10),"category":"A Job","label":"task2.2"},
+{"id": "23","startDate":new Date(2014,1,9),"endDate":new Date(2014,1,12),"category":"A Job","label":"task2.3"},
+{"id": "24","startDate":new Date(2014,1,9),"endDate":new Date(2014,1,12),"category":"A Job","label":"task2.3"},
+{"id": "25","startDate":new Date(2014,1,9),"endDate":new Date(2014,1,12),"category":"A Job","label":"task2.3"},
+{"id": "26","startDate":new Date(2014,1,9),"endDate":new Date(2014,1,12),"category":"A Job","label":"task2.3"},
+{"id": "27","startDate":new Date(2014,1,9),"endDate":new Date(2014,1,12),"category":"A Job","label":"task2.3"},
+{"id": "28","startDate":new Date(2014,1,9),"endDate":new Date(2014,1,12),"category":"A Job","label":"task2.3"},
+{"id": "29","startDate":new Date(2014,1,9),"endDate":new Date(2014,1,12),"category":"A Job","label":"task2.3"},
+{"id": "30","startDate":new Date(2014,1,9),"endDate":new Date(2014,1,12),"category":"A Job","label":"task2.3"},
 {"id": "3","startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"category":"E Job","label":"task3"}
 ];
 
@@ -34,6 +43,13 @@ var taskStatus = {
 
 var categories = [ "D Job", "P Job", "E Job", "A Job", "N Job" ];
 
+
+for(j=0; j<50;j++){
+    // tasks.push({"id": (100 + i).toString(),"startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"category":"Project_" + i, "label":"task" +(100+i),"style":"fill:red"});
+    tasks.push({"id": (100 + j).toString(),"startDate":new Date(2014,1,6),"endDate":new Date(2014,1,8+j),"category":"E Job", "label":"task" +(100+j),"style":"fill:red"});
+}
+    // categories.push("Project_" + i)
+
 tasks.sort(function(a, b) {
     return a.startDate - b.startDate;
 });
@@ -48,12 +64,6 @@ var timeDomainString = "1month";
 
 
 
-for(i=0; i < 10; i++){
-    for(j=0; j<2;j++){
-        tasks.push({"id": 100 + i,"startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"category":"Project_" + i, "label":"task" +(100+i),"style":"fill:red"});
-    }
-    categories.push("Project_" + i)
-}
 var gantt = d3.gantt().categories(categories).tickFormat(format);
 var margin = {
      top : 20,
@@ -154,6 +164,7 @@ function addTask() {
 
     changeTimeDomain(timeDomainString);
     gantt.draw(tasks);
+    console.log("height: " + gantt.height())
 };
 
 function removeTask() {

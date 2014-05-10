@@ -82,7 +82,9 @@ d3.gantt = function() {
     		chartHeigth = height;
     	} else {
     		chartHeigth = categoryAxisRenderer.calculatedLength();
+	    	console.log("categoryAxisRendererchartHeigth: " + chartHeigth)
     	}
+    	console.log("chartHeigth: " + chartHeigth)
     	return chartHeigth;
     }
 
@@ -157,6 +159,7 @@ d3.gantt = function() {
 
 		    timeAxisRenderer.domain([timeDomainStart, timeDomainEnd]).init();
 		}
+		console.log("Time domain: [" + timeDomainStart + "," + timeDomainEnd + "]")
     };
 
     var configureAxisDomain = function() {
@@ -464,14 +467,14 @@ d3.gantt = function() {
     gantt.width = function(value) {
 	if (!arguments.length)
 	    return width;
-	width = +value;
+	width = value;
 	return gantt;
     };
 
     gantt.height = function(value) {
 	if (!arguments.length)
 	    return height;
-	height = +value;
+	height = value;
 	return gantt;
     };
 
