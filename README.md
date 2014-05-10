@@ -1,4 +1,8 @@
 ## Introduction
+
+THIS DOCUMENT IS UNDER DEVELOPMENT.
+
+
 A basic implementation of a Gantt Chart using D3.js based on the work of [https://github.com/dk8996/Gantt-Chart]. 
 Here an example.
 
@@ -26,6 +30,7 @@ The Gantt chart handles four elements to represent data:
 ### Height and width
 
 ###Event handling
+
 
 
 ![screenshot](https://raw.github.com/dk8996/Gantt-Chart/master/examples/screenshot1.png)
