@@ -1,5 +1,32 @@
 ## Introduction
-A basic implementation of a Gantt Chart using D3.js. Here is a example [Example 1] (http://bl.ocks.org/dk8996/5534835) and another one [Example 2] (http://bl.ocks.org/dk8996/5449641).
+A basic implementation of a Gantt Chart using D3.js based on the work of [https://github.com/dk8996/Gantt-Chart]. 
+Here an example.
+
+New features:
+
+* Adds new model elements: milestone and dateline.
+* Axis rendering is refactored and extracted to new clases.
+* Gantt chart now handles tasks overlapping and dynamically resizes category axis tick ranges.
+* Style and CSS class name can be provided on tasks, milestones and datelines.
+* Chart height and width are calculated from X,Y axis domaing lenght.
+* When a task bar not totally fits on current time domain, draw it partially.
+* Adds functionality of drawing axis grid lines.
+* Refactors svg elements structure grouping elements, and defines a CSS selector for each group/element, so styling can easily be overrided.
+* Includes methods to assign event handlers on tasks, milestones and datelines user actions.
+
+## Getting Started
+### Data: Categories, Task, Milestones and Datelines
+The Gantt chart handles four elements to represent data:
+* Task: is the basic element to assign information to a period of  time. It is drawed using a rectangle bar. A task has this attributes:
+
+* Category: groups tasks and 
+
+### Styling
+
+### Height and width
+
+###Event handling
+
 
 ![screenshot](https://raw.github.com/dk8996/Gantt-Chart/master/examples/screenshot1.png)
 

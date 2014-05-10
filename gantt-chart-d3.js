@@ -782,7 +782,6 @@ d3.categoryAxisRenderer = function(){
 		var ypos = range[0] + (range[1]-range[0])/2;
 
 		return "translate(0," + scaleValue(ypos)+ ')'
-
 	}
 
 	var scaleValue = function(value){
@@ -849,7 +848,6 @@ d3.categoryAxisRenderer = function(){
 	categoryAxisRenderer.calculatedLength = function() {
 		return calculatedLength;
     };
-
 
 	function categoryAxisRenderer(){
 
