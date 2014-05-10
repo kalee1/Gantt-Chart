@@ -44,7 +44,7 @@ var taskStatus = {
 var categories = [ "D Job", "P Job", "E Job", "A Job", "N Job" ];
 
 
-for(j=0; j<50;j++){
+for(j=0; j<20;j++){
     // tasks.push({"id": (100 + i).toString(),"startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"category":"Project_" + i, "label":"task" +(100+i),"style":"fill:red"});
     tasks.push({"id": (100 + j).toString(),"startDate":new Date(2014,1,6),"endDate":new Date(2014,1,8+j),"category":"E Job", "label":"task" +(100+j),"style":"fill:red"});
 }
@@ -68,7 +68,7 @@ var gantt = d3.gantt().categories(categories).tickFormat(format);
 var margin = {
      top : 20,
      right : 40,
-     bottom : 20,
+     bottom : 80,
      left : 80
 };
 gantt.margin(margin).timeDomainMode("fixed");
@@ -165,6 +165,7 @@ function addTask() {
     changeTimeDomain(timeDomainString);
     gantt.draw(tasks);
     console.log("height: " + gantt.height())
+    console.log(d3.selectAll("svg").style("height"));
 };
 
 function removeTask() {

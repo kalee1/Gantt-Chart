@@ -45,7 +45,7 @@ d3.gantt = function() {
     var margin = {
 		top : 20,
 		right:  40,
-		bottom : 20,
+		bottom : 140,
 		left : 150
     };
 
@@ -406,6 +406,12 @@ d3.gantt = function() {
 		return {"x":parseInt(posX), "y": parseInt(posY)}
     } 
 
+    var resizeChart = function(){
+    	var svgElement = d3.select("body").select("svg").data([id], function(d){ return d;});
+    	svgElement.style("height", (getChartHeight() + margin.top + margin.bottom));
+    	console.log("new height;: " +(getChartHeight() + margin.top + margin.bottom))
+    }
+
 	/* GETTER / SETTER METHODS */
 
     gantt.draw = function() {
@@ -426,6 +432,9 @@ d3.gantt = function() {
 		drawTasks(tasks);
 		drawDateLines(dateLines);
 		drawMilestones(mileStones);
+
+		// resize svg element
+		resizeChart();
 
 		return gantt;
     };
