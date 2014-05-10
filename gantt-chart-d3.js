@@ -162,10 +162,29 @@ d3.gantt = function() {
 		console.log("Time domain: [" + timeDomainStart + "," + timeDomainEnd + "]")
     };
 
+    var calculateCategories = function(tasks){
+    	var mCategories = {};
+    	tasks.map(function(x){
+    		if(!mCategories.hasOwnProperty(mCategories,x.category)){
+				mCategories[x.category] = true;
+    		}
+    	})
+    	// convert map to list
+    	lstCategories = [];
+    	for (var c in mCategories){
+ 		   lstCategories.push( c );
+		}
+		return lstCategories;
+    }
+
     var configureAxisDomain = function() {
 		timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(tickFormat).configValue("axisLength",getChartWidth())
 		timeAxisRenderer.init();
 
+		if(categories == null){
+			// if no categories provided, calculate them from task categories
+			categories = calculateCategories(tasks)
+		}
 		categoryAxisRenderer.overlappingResolver(overlappingResolver).categories(categories);
 		if(height != null){
 			categoryAxisRenderer.configValue("axisLength", height);
@@ -409,7 +428,6 @@ d3.gantt = function() {
     var resizeChart = function(){
     	var svgElement = d3.select("body").select("svg").data([id], function(d){ return d;});
     	svgElement.style("height", (getChartHeight() + margin.top + margin.bottom));
-    	console.log("new height;: " +(getChartHeight() + margin.top + margin.bottom))
     }
 
 	/* GETTER / SETTER METHODS */
@@ -428,7 +446,7 @@ d3.gantt = function() {
 		// render axis
 		drawAxis();
 
-		// render data visualization
+		// render task model visualization
 		drawTasks(tasks);
 		drawDateLines(dateLines);
 		drawMilestones(mileStones);

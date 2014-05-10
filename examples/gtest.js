@@ -80,6 +80,7 @@ gantt.tasks(tasks).mileStones(mileStones).dateLines(dateLines)
     .milestoneEventHandler("mouseover", taskhandler)
     .datelineEventHandler("mouseover", taskhandler);
 
+
 gantt.draw();
 
 gantt();
@@ -164,8 +165,6 @@ function addTask() {
 
     changeTimeDomain(timeDomainString);
     gantt.draw(tasks);
-    console.log("height: " + gantt.height())
-    console.log(d3.selectAll("svg").style("height"));
 };
 
 function removeTask() {
