@@ -14,6 +14,7 @@ Here an example.
 * Adds axis grid lines drawing functionallity.
 * Svg element structure refactoring, axis, grid and graph components are now grouped under "g" elements, and  a CSS selector is defined for each group/element, so styling can easily be overrided.
 * Includes methods to assign event handlers on tasks, milestones and datelines user actions.
+* Multiple charts can be presented in a same page.
 
 ## Getting Started
 ### Data: Categories, Task, Milestones and Datelines
@@ -67,7 +68,7 @@ To assign this information to the gantt chart, you have to call the appropiate s
 
 ### Creating a simple gantt chart
 ```javascript
-var categories = [ "Project A", "Project B"]
+var categories = [ "Project A", "Project B", "Project C"]
 
 var tasks = [
   {"id": "1","category":"Project A", "label":"task1","startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5)},
@@ -97,7 +98,45 @@ The complete example can be found in
 
 ### Styling
 
-### Height and width
+svg components are grouped using "g" elements to easily select appropiated elements in rendering operations. This selection is made using tag.classname CSS selectors. Each element type has is own css class name, so users can override styling according to their needs.
+This is the elements and css classname structure. 
+
+```
+  svg.chart
+    g.gantt-chart
+      g.grid-group [1]
+        line.gridX [0,*]
+        line.gridY [0,*]
+      g.xaxis-group [1]
+        path.domain [1]
+        line.tickX minor [0,*]
+        g.tickX major [0,*]
+          line [1]
+          text [1]
+      g.yaxis-group [1]
+        line.axisY [1]
+        line.tickY  [0,*]
+        g [0,*]
+          text.tickY-label [0,*]
+      g.gantt-bars [1]
+        g.g_task [1]
+          rect.task-bar [0,*]
+          text.task-label [0,*]
+        g.g_mileStone [1]
+          circle.milestone-mark [0,*]
+          text.milestone-label [0,*]
+        g.g_dateline [1]
+          line.dateline-line [0,*]
+          text.dateline-label [0,*]
+```
+
+The number next to class name indicates the number of times the element can appear. For example, `text.dateline-label` can be found multiple times under the `g.g_dateline element`, but there is just one `g.g_dateline element` in the svg chart.
+
+Gantt chart comes with a default styling implementation that can be found in [gantt-chart-d3.css].
+
+### Chart height and width
+
+
 
 when two tasks are overlapped, the gantt chart will draw the later task under the overlapped task, and the category axis lane will be expanded to fit the with of the two parallel tasks. There's no limit in the number of parallel task to draw.
 To change this behaviour (for example to define overlapping based on task relation in addition to time constraints), provide a different implementation of `overlappingResolver` class.
