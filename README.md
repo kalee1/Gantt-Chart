@@ -1,3 +1,5 @@
+# ** THIS DOCUMENT IS UNDER DEVELOPMENT **
+
 ## Introduction
 A basic implementation of a Gantt Chart using D3.js based on the work of [https://github.com/dk8996/Gantt-Chart]. 
 Here an example.
@@ -146,7 +148,6 @@ To change this behaviour (for example to define overlapping based on task relati
 
 ![screenshot](https://raw.github.com/dk8996/Gantt-Chart/master/examples/screenshot1.png)
 
-# ** THIS DOCUMENT IS UNDER DEVELOPMENT **
 
 
 ## Dependencies & Building
