@@ -23,6 +23,16 @@ var mileStones = [
     {"id": 2,"date":new Date(2014,1,3),"category":"N Job", "label":"deployment 2"}
 ];
 
+var milestone = {
+  "id": 1,                  // unique task identificator
+  "label":"deployment 1",   // descriptive text to show next to milestone mark
+  "category": "Project B",  // category to which milestone belongs
+  "date": new Date(2014,1,7),
+  "style": "color:blue",    // (optional)
+  "class": "staging_deploy" // (optional)
+};
+
+
 var dateLines = [
 	{"date":new Date(2014,1,8),"style":"stroke:rgb(255,0,0);stroke-width:2"},                
 	{"date":new Date(2014,1,12),"style":"stroke:rgb(120,120,0);stroke-width:2"}                
@@ -64,6 +74,7 @@ var timeDomainString = "1month";
 
 
 
+
 var gantt = d3.gantt().categories(categories).tickFormat(format);
 var margin = {
      top : 20,
@@ -84,8 +95,6 @@ gantt.tasks(tasks).mileStones(mileStones).dateLines(dateLines)
 gantt.draw();
 
 gantt();
-
-aRenderer = gantt.categoryAxisRenderer();
 
 function changeTimeDomain(timeDomainString) {
 /*    this.timeDomainString = timeDomainString;

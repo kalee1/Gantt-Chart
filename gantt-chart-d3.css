@@ -1,0 +1,46 @@
+
+.tickY{
+	stroke: black;
+}
+
+.task-bar {
+	fill: grey;
+}
+
+.task-bar:hover {
+	fill: dark;
+}
+
+.task-label {
+	fill: white;
+}
+
+.milestone-mark {
+	stroke: black;
+	stroke-width: 3;
+}
+
+.milestone-label {
+	fill: grey;
+}
+
+.dateline-line {
+	stroke: red;
+	stroke-width: 2;
+}
+
+.dateline-label{
+	fill: grey;
+}
+
+.chart {
+	font-family: Arial, sans-serif;
+	font-size: 12px;
+}
+
+.xaxis-group path,.xaxis-group line {
+	fill: none;
+	stroke: #000;
+	shape-rendering: crispEdges;
+}
+

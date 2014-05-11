@@ -56,7 +56,7 @@ d3.gantt = function() {
     var timeDomainStart =null;
     var timeDomainEnd = null;
     var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
-    var tickFormat = "%H:%M"; // default tick format
+    var tickFormat = "%d/%m"; // default tick format
 
     // model arrays
     var categories = [];
@@ -82,9 +82,7 @@ d3.gantt = function() {
     		chartHeigth = height;
     	} else {
     		chartHeigth = categoryAxisRenderer.calculatedLength();
-	    	console.log("categoryAxisRendererchartHeigth: " + chartHeigth)
     	}
-    	console.log("chartHeigth: " + chartHeigth)
     	return chartHeigth;
     }
 
@@ -194,8 +192,8 @@ d3.gantt = function() {
 
     var drawAxis = function(){
     	configureAxisDomain();
-    	renderAxis();
     	drawGrid();
+    	renderAxis();
     }
 
     var renderAxis = function() {
@@ -203,29 +201,17 @@ d3.gantt = function() {
 
 		// create y axis group if it not exists
 		var yAxisGroup = chartGroup.select("g.yaxis-group");
-		if (yAxisGroup.empty()){
-			yAxisGroup = chartGroup.append("g").attr("class", "yaxis-group");
-		}
-
 		categoryAxisRenderer.draw(yAxisGroup);
 
     	// build x axis
 		var xAxisGroup = chartGroup.select("g.xaxis-group");
-		if (xAxisGroup.empty()){
-			xAxisGroup = chartGroup.append("g").attr("class", "xaxis-group")
-		}
 		xAxisGroup.attr("transform", "translate(0, " + getChartHeight() + ")")
 
 		timeAxisRenderer.draw(xAxisGroup)
-		// xAxisGroup.transition().call(xAxis);
     }
 
     var drawGrid = function(){
 		var gridGroup = getChartGroup().select("g.grid-group")
-		if(gridGroup.empty()){
-			// create grid group
-			gridGroup = getChartGroup().append("g").attr("class","grid-group")
-		}
 
 		// draw x axis grid lines
 		gridGroup.selectAll("line.gridX").remove();
@@ -240,7 +226,7 @@ d3.gantt = function() {
 		  .style("stroke", "#ccc");		
 
 		// draw y axis grid lines
-		var gridWidth = getChartWidth() + margin.left + margin.right;
+		var gridWidth = getChartWidth();
 
 		gridGroup.selectAll("line.gridY").remove();
 		gridGroup.selectAll("line.gridY").data(categoryAxisRenderer.ticks(), function(d){ return d;}).enter()
@@ -254,6 +240,7 @@ d3.gantt = function() {
     }
 
     var initChartCanvas = function (){
+
 		var chartGroup = d3.select("body").selectAll("svg").data([id], function(d){ return d;})
 			.enter()
 			.append("svg")
@@ -261,7 +248,11 @@ d3.gantt = function() {
 			.append("g")
 			.attr("class", "gantt-chart")
 			.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
-		
+
+		// add grouping elements for graph components
+		var gridGroup = chartGroup.append("g").attr("class","grid-group");
+		var yAxisGroup = chartGroup.append("g").attr("class", "yaxis-group");
+		var xAxisGroup = chartGroup.append("g").attr("class", "xaxis-group")
 		var barGroup = chartGroup.append("g").attr("class", "gantt-bars");
     }
 
