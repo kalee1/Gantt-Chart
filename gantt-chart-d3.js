@@ -56,7 +56,7 @@ d3.gantt = function() {
     var timeDomainStart =null;
     var timeDomainEnd = null;
     var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
-    var tickFormat = "%d/%m"; // default tick format
+    var tickFormat = "%d/%b"; // default tick format
 
     // model arrays
     var categories = [];
