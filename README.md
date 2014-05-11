@@ -1,4 +1,4 @@
-# ** THIS DOCUMENT IS UNDER DEVELOPMENT **
+# THIS DOCUMENT IS UNDER DEVELOPMENT
 
 ## Introduction
 A basic implementation of a Gantt Chart using D3.js based on the work of [https://github.com/dk8996/Gantt-Chart]. 
