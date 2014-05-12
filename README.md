@@ -13,7 +13,7 @@ Here an example.
 * Chart height and width are calculated from X,Y axis domaing lenght.
 * Style and CSS class name can be provided on tasks, milestones and datelines.
 * When a task bar not totally fits on current time domain, it is drawn partially.
-* Adds axis grid lines drawing functionallity.
+* Adds axis grid line drawing functionallity.
 * Svg element structure refactoring, axis, grid and graph components are now grouped under "g" elements, and  a CSS selector is defined for each group/element, so styling can easily be overrided.
 * Includes methods to assign event handlers on tasks, milestones and datelines user actions.
 * Multiple charts can be presented in a same page.
