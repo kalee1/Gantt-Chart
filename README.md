@@ -14,7 +14,7 @@ A basic implementation of a Gantt Chart using D3.js based on the work of [Dimitr
 * svg element structure refactoring, axis, grid and graph components are now grouped under "g" elements, and  a CSS selector is defined for each group/element, so styling can easily be overrided.
 * Includes methods to assign event handlers on tasks, milestones and datelines user actions.
 * Multiple charts can be presented in a same page.
-* Progress percentage can be assigned to each task, and a bar within task rectangle is drawn to show it.
+* Progress percentage can be assigned to each task, a bar within task rectangle is drawn to show it.
 
 ## Getting Started
 ### Data: Categories, Task, Milestones and Datelines
