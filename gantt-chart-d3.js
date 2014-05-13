@@ -11,6 +11,7 @@
 			g.gantt-bars
 				g.g_task
 					rect.task-bar
+					rect.task-progress-bar
 					text.task-label
 				g.g_mileStone
 					circle.milestone-mark
@@ -379,15 +380,27 @@ d3.gantt = function() {
 		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
 		 .attr("width", calculateBarWidth);
 
-		// add bar's rect
+		// add tasks bar's rect
 		group.append("rect")
-		 .attr("rx", 5)
-	     .attr("ry", 5)
 		 .attr("y", 0)
-		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
+		 .attr("height", categoryAxisRenderer.config().barHeight)
 		 .attr("width", calculateBarWidth)
 	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-bar"; else return "task-bar";})
 	     .attr("style",function (d) { return d.style;})
+	     .call(function(d){ assignEvent("task", d);});
+
+		// add progress bar's rect
+		group.append("rect")
+		 .attr("y", 0)
+		 .attr("height", categoryAxisRenderer.config().barHeight )
+		 .attr("width", function (d) { 
+		 		if (hasOwnProperty(d,"progress")){
+		 			return d.progress * calculateBarWidth(d);
+		 		} else {
+		 			return 0;
+		 		}
+		 	})
+	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-progress-bar"; else return "task-progress-bar";})
 	     .call(function(d){ assignEvent("task", d);});
 
 		// add labels

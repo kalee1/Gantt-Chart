@@ -8,6 +8,14 @@
 }
 
 .task-bar:hover {
+	fill: dark-grey;
+}
+
+.task-progress-bar {
+	fill: black;
+}
+
+.task-bar:hover {
 	fill: dark;
 }
 
