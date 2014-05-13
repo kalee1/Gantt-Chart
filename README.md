@@ -98,6 +98,9 @@ var gantt = d3.gantt().categories(categories)
 ```
 The complete example can be found in 
 
+
+![screenshot](https://raw.github.com/gusriobr/Gantt-Chart/master/examples/example1.png)
+
 ### Styling
 
 svg components are grouped using "g" elements to easily select appropiated elements in rendering operations. This selection is made using tag.classname CSS selectors. Each element type has is own css class name, so users can override styling according to their needs.
