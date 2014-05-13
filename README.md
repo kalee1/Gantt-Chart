@@ -1,6 +1,5 @@
 ## Introduction
-A basic implementation of a Gantt Chart using D3.js based on the work of [Dimitry Kudryavtsev](https://github.com/dk8996/Gantt-Chart). 
-Here an example.
+A basic implementation of a Gantt Chart using D3.js based on the work of [Dimitry Kudryavtsev](https://github.com/dk8996/Gantt-Chart).
 
 **New features:**
 
