@@ -14,6 +14,7 @@ A basic implementation of a Gantt Chart using D3.js based on the work of [Dimitr
 * svg element structure refactoring, axis, grid and graph components are now grouped under "g" elements, and  a CSS selector is defined for each group/element, so styling can easily be overrided.
 * Includes methods to assign event handlers on tasks, milestones and datelines user actions.
 * Multiple charts can be presented in a same page.
+* Progress percentage can be assigned to each task, and a bar within task rectangle is drawn to show it.
 
 ## Getting Started
 ### Data: Categories, Task, Milestones and Datelines
@@ -32,6 +33,7 @@ var task = {
   "category": "Project A",
   "startDate": new Date(2014,8,10),
   "endDate": new Date(2014,8,13),
+  "progress": [0,1]   // % of taks completion
   "style": "fill:red",      // style to apply to task bar (optional)
   "class": "completedTask"  // CSS class to apply to task bar (optional)
 };
@@ -68,11 +70,11 @@ To assign this information to the gantt chart, you have to call the appropiate s
 var categories = [ "Project A", "Project B", "Project C"]
 
 var tasks = [
-  {"id": "1","category":"Project A", "label":"task1","startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5)},
+  {"id": "1","category":"Project A", "label":"task1","startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5), "progress":0.15},
   {"id": "11","category":"Project A","label":"task1.1","startDate":new Date(2014,1,3),"endDate":new Date(2014,1,5)},
-  {"id": "2","category":"Project A","label":"task2","startDate":new Date(2014,1,4),"endDate":new Date(2014,1,8)},
-  {"id": "21","category":"Project A","label":"task2.1","startDate":new Date(2014,1,7),"endDate":new Date(2014,1,8)},
-  {"id": "3","category":"Project B","label":"task3","startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12)}
+  {"id": "2","category":"Project A","label":"task2","startDate":new Date(2014,1,4),"endDate":new Date(2014,1,8), "progress":0.35},
+  {"id": "21","category":"Project A","label":"task2.1","startDate":new Date(2014,1,7),"endDate":new Date(2014,1,8), "progress":0.75},
+  {"id": "3","category":"Project B","label":"task3","startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12), "progress":0.6}
 ];
 
 var milestones = [
