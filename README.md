@@ -33,7 +33,7 @@ var task = {
   "category": "Project A",
   "startDate": new Date(2014,8,10),
   "endDate": new Date(2014,8,13),
-  "progress": [0,1]   // % of taks completion
+  "progress": [0,1]   // % of taks completion (optional)
   "style": "fill:red",      // style to apply to task bar (optional)
   "class": "completedTask"  // CSS class to apply to task bar (optional)
 };
