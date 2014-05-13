@@ -14,7 +14,7 @@ Here an example.
 * Style and CSS class name can be provided on tasks, milestones and datelines.
 * When a task bar not totally fits on current time domain, it is drawn partially.
 * Adds axis grid line drawing functionallity.
-* Svg element structure refactoring, axis, grid and graph components are now grouped under "g" elements, and  a CSS selector is defined for each group/element, so styling can easily be overrided.
+* svg element structure refactoring, axis, grid and graph components are now grouped under "g" elements, and  a CSS selector is defined for each group/element, so styling can easily be overrided.
 * Includes methods to assign event handlers on tasks, milestones and datelines user actions.
 * Multiple charts can be presented in a same page.
 
@@ -138,10 +138,15 @@ Gantt chart comes with a default styling implementation that can be found in [ga
 
 ### Chart height and width
 
+You can set the height and width of the gantt chart using the gantt.height() and gantt.width() methods.
+If these values aren't provided, the gantt chart is drawn using these default values:
+* height: as much length as needed to draw the category axis. 
+* width: body.clientWidht
 
+The category axis lanes length are calculated dynamically using provided tasks. When two tasks are overlapped, the gantt chart will draw the later task under the overlapped task, and the corresponding category axis lane will be expanded to fit the two parallel tasks width. There's no limit in the number of parallel task to draw.
+To change this behaviour (for example to define overlapping based on task relation in addition to time constraints, or to set a fixed length for each category lane), provide a different implementation of `overlappingResolver` class.
 
-when two tasks are overlapped, the gantt chart will draw the later task under the overlapped task, and the category axis lane will be expanded to fit the with of the two parallel tasks. There's no limit in the number of parallel task to draw.
-To change this behaviour (for example to define overlapping based on task relation in addition to time constraints), provide a different implementation of `overlappingResolver` class.
+You can modify the category lane length calculation modifying the `categoryAxisRenderer.config` parameters (bar padding, task bar height, margins, task bar minimun height, ...).
 
 ###Event handling
 
