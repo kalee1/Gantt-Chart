@@ -138,22 +138,16 @@ d3.gantt = function() {
     	}
     }
 
-
     var initTimeDomain = function(tasks) {
 		if (timeDomainMode === FIT_TIME_DOMAIN_MODE) {
 		    if (tasks === undefined || tasks.length < 1) {
-			timeDomainStart = d3.time.day.offset(new Date(), -3);
-			timeDomainEnd = d3.time.hour.offset(new Date(), +3);
-			return;
+				timeDomainStart = d3.time.day.offset(new Date(), -3);
+				timeDomainEnd = d3.time.hour.offset(new Date(), +3);
+				return;
 		    }
-		    tasks.sort(function(a, b) {
-			return a.endDate - b.endDate;
-		    });
-		    timeDomainEnd = tasks[tasks.length - 1].endDate;
-		    tasks.sort(function(a, b) {
-			return a.startDate - b.startDate;
-		    });
-		    timeDomainStart = tasks[0].startDate;
+
+		    timeDomainStart = tasks.reduce( function(a,b) { return a.startDate < b.startDate ? a : b } ).startDate;
+		    timeDomainEnd = tasks.reduce( function(a,b) { return a.endDate > b.endDate ? a : b } ).endDate;
 
 		    timeAxisRenderer.domain([timeDomainStart, timeDomainEnd]).init();
 		}
