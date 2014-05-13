@@ -103,7 +103,7 @@ The complete example can be found in
 
 ### Styling
 
-svg components are grouped using "g" elements to easily select appropiated elements in rendering operations. This selection is made using tag.classname CSS selectors. Each element type has is own css class name, so users can override styling according to their needs.
+Svg components are grouped using "g" elements to easily select appropiated elements in rendering operations. This selection is made using tag.classname CSS selectors. Each element type has is own css class name, so users can override styling according to their needs.
 This is the elements and css classname structure. 
 
 ```
@@ -152,7 +152,21 @@ To change this behaviour (for example to define overlapping based on task relati
 You can modify the category lane length calculation modifying the `categoryAxisRenderer.config` parameters (bar padding, task bar height, margins, task bar minimun height, ...).
 
 ###Event handling
+Gannt chart provide methods to establish handlers to treat user actions o task bars, milestones marks and datelines. Each object type has its own method:
+'''javascript
+    gantt.taskEventHandler(event, handler)
+    gantt.milestoneEventHandler(event, handler)
+    gantt.datelineEventHandle(event, handler)
+ '''
+Where *event*, is a string event type, such as "click", "mouseover", etc. It defines the event that will be catched by the handler, and *handler* is a js function that receives as parameter the object model in which user has executed an action.
 
+So to handle click event on tasks, you can do
+''' javascript
+
+gantt.taskEventHandler('click', function (t){
+  console.log("this is the tasks you clicked " + t.label);
+})
+'''
 
 ![screenshot](https://raw.github.com/dk8996/Gantt-Chart/master/examples/screenshot1.png)
 
