@@ -7,16 +7,13 @@
 	fill: grey;
 }
 
-.task-bar:hover {
-	fill: dark-grey;
-}
-
 .task-progress-bar {
-	fill: black;
+	fill: LightSlateGrey;
 }
 
 .task-bar:hover {
-	fill: dark;
+	fill: darkgray;
+	stroke: black;
 }
 
 .task-label {
