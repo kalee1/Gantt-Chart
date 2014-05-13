@@ -1,7 +1,5 @@
-# THIS DOCUMENT IS UNDER DEVELOPMENT
-
 ## Introduction
-A basic implementation of a Gantt Chart using D3.js based on the work of [https://github.com/dk8996/Gantt-Chart]. 
+A basic implementation of a Gantt Chart using D3.js based on the work of [Dimitry Kudryavtsev](https://github.com/dk8996/Gantt-Chart). 
 Here an example.
 
 **New features:**
@@ -100,8 +98,8 @@ The complete example can be found in [example1](https://github.com/gusriobr/Gant
 
 ### Styling
 
-Svg components are grouped using "g" elements to easily select appropiated elements in rendering operations. This selection is made using tag.classname CSS selectors. Each element type has is own css class name, so users can override styling according to their needs.
-This is the elements and css classname structure. 
+Svg components are grouped using "g" elements to easily select appropiated elements in rendering operations. This selection is made using tag.classname CSS selectors. Each element type has its own css class name, so users can override styling according to their needs.
+This is the element and css classname structure. 
 
 ```
   svg.chart
@@ -134,7 +132,7 @@ This is the elements and css classname structure.
 
 The number next to class name indicates the number of times the element can appear. For example, `text.dateline-label` can be found multiple times under the `g.g_dateline element`, but there is just one `g.g_dateline element` in the svg chart.
 
-Gantt chart comes with a default styling implementation that can be found in [gantt-chart-d3.css].
+Gantt chart comes with a default styling implementation that can be found in [gantt-chart-d3.css] (https://github.com/gusriobr/Gantt-Chart/blob/master/gantt-chart-d3.css).
 
 ### Chart height and width
 
@@ -149,7 +147,7 @@ To change this behaviour (for example to define overlapping based on task relati
 You can modify the category lane length calculation modifying the `categoryAxisRenderer.config` parameters (bar padding, task bar height, margins, task bar minimun height, ...).
 
 ###Event handling
-Gannt chart provide methods to establish handlers to treat user actions o task bars, milestones marks and datelines. Each object type has its own method:
+Gannt chart provides methods to establish handlers to treat user actions on task bars, milestones marks and datelines. Each object type has its own method:
 '''javascript
     gantt.taskEventHandler(event, handler)
     gantt.milestoneEventHandler(event, handler)
@@ -157,7 +155,7 @@ Gannt chart provide methods to establish handlers to treat user actions o task b
  '''
 Where *event*, is a string event type, such as "click", "mouseover", etc. It defines the event that will be catched by the handler, and *handler* is a js function that receives as parameter the object model in which user has executed an action.
 
-So to handle click event on tasks, just write:
+So to handle click events on tasks, just code:
 
 ```javascript
 
@@ -165,8 +163,6 @@ gantt.taskEventHandler('click', function (t){
   console.log("this is the task you clicked " + t.label);
 })
 ```
-
-
 
 ## Dependencies & Building
 Relies on the fantastic [D3 visualization library](http://mbostock.github.com/d3/) to do lots of the heavy lifting for stacking and rendering to SVG.
