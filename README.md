@@ -161,14 +161,13 @@ Gannt chart provide methods to establish handlers to treat user actions o task b
 Where *event*, is a string event type, such as "click", "mouseover", etc. It defines the event that will be catched by the handler, and *handler* is a js function that receives as parameter the object model in which user has executed an action.
 
 So to handle click event on tasks, you can do
-''' javascript
+
+```javascript
 
 gantt.taskEventHandler('click', function (t){
-  console.log("this is the tasks you clicked " + t.label);
+  console.log("this is the task you clicked " + t.label);
 })
-'''
-
-![screenshot](https://raw.github.com/dk8996/Gantt-Chart/master/examples/screenshot1.png)
+```
 
 
 
@@ -177,7 +176,7 @@ Relies on the fantastic [D3 visualization library](http://mbostock.github.com/d3
 
 ## License
 
-   Copyright 2012 Dimitry Kudryavtsev
+   Copyright 2014 Gustavo Río Briones
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -191,4 +190,4 @@ Relies on the fantastic [D3 visualization library](http://mbostock.github.com/d3
    See the License for the specific language governing permissions and
    limitations under the License.
    
-   [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/c088458a0319a78b63aaea9c54fba4de "githalytics.com")](http://githalytics.com/dk8996/Gantt-Chart)
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/d6e9f4800caaf58454147661fe88ef8d "githalytics.com")](http://githalytics.com/gusriobr/Gantt-Chart)
