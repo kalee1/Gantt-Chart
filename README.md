@@ -22,16 +22,16 @@ Here an example.
 ### Data: Categories, Task, Milestones and Datelines
 The Gantt chart handles four elements to represent data:
 
-* **Category**: category elements group tasks and define the vertical axis items. Each tasks must necessarily have a category. Each category is defined using just a string representing its name, ex: *"Project A"*.
+* **Category**: category elements group tasks and define vertical axis items. Each tasks must necessarily have a category. Each category is defined using a string representing its name, ex: *"Project A"*.
 Categories can be setted on gantt chart using the `categories( array )` method, but if they aren't provided, the gantt chart will deduce them from categories used in the provided tasks.  
 If you call the categories method with a string array, the gantt chart will draw in the category axis one item for each item in the passed array, despite a category could have no related tasks.
 
-* **Task**: is the basic element to assign information to a period of  time. It is drawed using a rectangle bar. A task has this attributes:
+* **Task**: is the basic element to assign information to a period of time. It is drawn using a rectangle bar. A task has these attributes:
 
 ```javascript
 var task = {
-  "id": "1",          // unique task identificator
-  "label": "task1",   // descriptive text to show in task bar
+  "id": "1",          // unique task identifier
+  "label": "task1",   // descriptive text to show within task bar
   "category": "Project A",
   "startDate": new Date(2014,8,10),
   "endDate": new Date(2014,8,13),
@@ -42,31 +42,29 @@ var task = {
 ```
 *Note: needless to say, only one of the styling attributes should be used, style or class.*
 
-* **Milestones**: they define events or information related to a specific day.  This element is represented with a circle mark with the corresponding label next to it. Each milestone has this information:
-```javascript
+* **Milestones**: they define events or information related to a specific day. These elements are represented with a circle mark with their corresponding label next to them. Each milestone has this information:
 
+```javascript
 var milestone = {
-  "id": 1,                  // unique task identificator
+  "id": "1",                // unique task identifier
   "label":"deployment 1",   // descriptive text to show next to milestone mark
   "category": "Project B",  // category to which milestone belongs
   "date": new Date(2014,1,7),
   "style": "color:blue",    // (optional)
   "class": "staging_deploy" // (optional)
 };
-
 ```
 
-* **Datelines**: this elements lets the user draw a line in the gantt chart to point a relevant day, for example a project deadline. Each dateline has this information:
+* **Datelines**: these elements let the user draw a line in the gantt chart to point a relevant day. Each dateline has this information:
 
-``` javascript
+```javascript
 var dateline = {
   "date": new Date(2014,1,8),
   "style": "stroke:rgb(255,0,0);stroke-width:2", // (optional)
   "class": "project_deadline" // (optional)
 };
 ```
-To assign this information to the gantt chart, you have to call the appropiate setter before the `draw` method is call. 
-
+To assign this information to the gantt chart, you have to call the appropiate setter before the `draw` method is called. 
 
 ### Creating a simple gantt chart
 ```javascript
@@ -96,8 +94,7 @@ var gantt = d3.gantt().categories(categories)
   .dateLines(datelines)
   .draw();
 ```
-The complete example can be found in 
-
+The complete example can be found in [example1](https://github.com/gusriobr/Gantt-Chart/blob/master/examples/example1.html).
 
 ![screenshot](https://raw.github.com/gusriobr/Gantt-Chart/master/examples/example1.png)
 
@@ -160,7 +157,7 @@ Gannt chart provide methods to establish handlers to treat user actions o task b
  '''
 Where *event*, is a string event type, such as "click", "mouseover", etc. It defines the event that will be catched by the handler, and *handler* is a js function that receives as parameter the object model in which user has executed an action.
 
-So to handle click event on tasks, you can do
+So to handle click event on tasks, just write:
 
 ```javascript
 
