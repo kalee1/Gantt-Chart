@@ -17,9 +17,10 @@ var releases = [
 ];
 
 var deployment ={
-	project: "string",
-	version: "string",
-	environment: "production", "staging"
+	"project": "string",
+	"version": "string",
+	"environment": "string" (production, staging),
+	"date": date
 }
 
 */
@@ -53,7 +54,7 @@ d3.releaseTimeline = function(){
 		    return deployments;
 		deployments = value;
 		var deps = createMSsFromDeployment(deployments)
-		gantt.milestones(deps);
+		gantt.mileStones(deps);
 
 		return releaseTimeline;
 	};
@@ -75,19 +76,28 @@ d3.releaseTimeline = function(){
 		var tasks = [];
 		releases.forEach(function( r ){
 			tasks.push( createMainTaskFromRelease(r) );
-			tasks.push( createExecutedTaskFromRelease(r) );
 			tasks.push( createEstimatedTaskFromRelease(r) );
+			tasks.push( createExecutedTaskFromRelease(r) );
 		});
 		return tasks;
 	}
 
 	var createMainTaskFromRelease = function( release ){
 		var task = {};
-		task.id = release.id;
+		task.id = (!hasOwnProperty(release,"id"))? release.id : Math.random() * 100000000;
 		task.label = release.version  + " ("+labelDateFormat(release.executed[0])+"-"+labelDateFormat(release.executed[1])+")"
 		task.category = release.project;
 		task.startDate = release.planned[0];
 		task.endDate = release.planned[1];
+		return task;
+	}
+	var createEstimatedTaskFromRelease = function( release ){
+		var task = {};
+		task.id = (!hasOwnProperty(release,"id"))? (20000+release.id) : Math.random() * 100000000;
+		task.label = release.version  + " " + labelDateFormat(release.estimated[1]);
+		task.category = release.project;
+		task.startDate = release.estimated[0];
+		task.endDate = release.estimated[1];
 		if(hasOwnProperty(release,"EV") &&  hasOwnProperty(release,"PV") && release.PV >0){
 			task.progress = release.EV / release.PV;
 		}
@@ -95,20 +105,11 @@ d3.releaseTimeline = function(){
 	}
 	var createExecutedTaskFromRelease = function( release ){
 		var task = {};
-		task.id = (10000 + release.id);
-		task.label = release.version;
+		task.id = (!hasOwnProperty(release,"id"))? (10000+release.id) : Math.random() * 100000000;
+		task.label = release.version  + " "+labelDateFormat(release.executed[1]);
 		task.category = release.project;
 		task.startDate = release.executed[0];
 		task.endDate = release.executed[1];
-		return task;
-	}
-	var createEstimatedTaskFromRelease = function( release ){
-		var task = {};
-		task.id = (20000 + release.id);
-		task.label = release.version;
-		task.category = release.project;
-		task.startDate = release.estimated[0];
-		task.endDate = release.estimated[1];
 		return task;
 	}
 
@@ -117,11 +118,23 @@ d3.releaseTimeline = function(){
 		deployments.forEach(function( d ){
 			milestones.push( createMSFromDep( d ) );
 		});
+
+
+    milestones.push({"id": 1,"category":"GRETEL", "label":"deployment 1","date":new Date(2014,4,12)});
+    milestones.push({"id": 2,"category":"GRETEL", "label":"deployment 2","date":new Date(2014,4,15)});
+
+
 		return milestones;
 	}
 
 	var createMSFromDep = function( deployment ){
 		var milestone = {};
+		milestone.id = (!hasOwnProperty(deployment,"id"))? deployment.id : Math.random() * 100000000;
+		milestone.category = deployment.project;
+		milestone.label = deployment.version;
+		milestone.date = deployment.date;
+		milestone.class = "deployment-"+deployment.environment;
+
 		return milestone;
 	}
 
@@ -140,7 +153,6 @@ d3.releaseTimeline = function(){
 
 	releaseTimeline.draw = function(){
 		gantt.draw();
-		console.log("gantt.tasks " + gantt.tasks())
 	}
 
 
