@@ -666,7 +666,7 @@ d3.categoryAxisRenderer = function(){
 	var config = {
 		"axisLength": null,
 		"barHeight" : 15,
-		"progressBarPorcHeight" : 70,
+		"progressBarPorcHeight" : 100,
 		"barPadding" : 5,
 		"barMargin" : 5,
 		"minTaskBandHeight": 30,

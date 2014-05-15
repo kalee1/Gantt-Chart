@@ -7,12 +7,12 @@
 }
 
 .planned-bar {
-	fill: #205F74;
+	fill: #4A789C;
 }
 
 
 .planned-bar:hover {
-	fill: #38A7CC;
+	fill: #8DB8D1;
 	stroke: #164A6A;
 }
 
@@ -23,14 +23,14 @@
 
 
 .estimated-bar{
-	fill: #38A7CC;
+	fill: #85C1F5;
 }
 .estimated-bar:hover{
-	fill: #5FB1CC;
-	stroke: #024C65;
+	fill: #8DD6B9;
+	stroke: #15714C;
 }
 .estimated-progress-bar{
-	fill: #06759A;
+	fill: #73B6D0;
 }
 .estimated-label {
 	fill: #FCFEFD;
@@ -38,11 +38,11 @@
 
 
 .executed-bar{
-	fill: #F77F00;
+	fill: #E96D63;
 }
 .executed-bar:hover{
-	fill: #FBB770;
-	stroke: #A25300;
+	fill: #6AD0BF;
+	stroke: #066858;
 }
 .executed-progress-bar{
 	fill: #28786B;
@@ -55,7 +55,7 @@
 
 .deployment-production-mark {
 	stroke: #F76100;
-	stroke-width: 4;
+	stroke-width: 3;
 }
 
 .deployment-production-label {
@@ -64,7 +64,7 @@
 
 .deployment-staging-mark {
 	stroke: #F7B000;
-	stroke-width: 4;
+	stroke-width: 3;
 }
 
 .deployment-staging-label {
@@ -72,22 +72,6 @@
 }
 
 
-/**************/
-/*  DATELINE  */
-/**************/
-
-.dateline-line {
-	stroke: red;
-	stroke-width: 2;
-}
-
-.dateline-label{
-	fill: grey;
-}
-
-/***********/
-/*  CHART  */
-/***********/
 
 .chart {
 	font-family: Arial, sans-serif;

@@ -89,27 +89,30 @@ d3.releaseTimeline = function(){
 		task.category = release.project;
 		task.startDate = release.planned[0];
 		task.endDate = release.planned[1];
+		task.class = "planned";
 		return task;
 	}
 	var createEstimatedTaskFromRelease = function( release ){
 		var task = {};
 		task.id = (!hasOwnProperty(release,"id"))? (20000+release.id) : Math.random() * 100000000;
-		task.label = release.version  + " " + labelDateFormat(release.estimated[1]);
+		task.label = release.version  + " " + labelDateFormat(release.estimated[1]) + " -est";
 		task.category = release.project;
 		task.startDate = release.estimated[0];
 		task.endDate = release.estimated[1];
 		if(hasOwnProperty(release,"EV") &&  hasOwnProperty(release,"PV") && release.PV >0){
 			task.progress = release.EV / release.PV;
 		}
+		task.class = "estimated";
 		return task;
 	}
 	var createExecutedTaskFromRelease = function( release ){
 		var task = {};
 		task.id = (hasOwnProperty(release,"id"))? (10000+release.id) : Math.random() * 100000000;
-		task.label = release.version  + " "+labelDateFormat(release.executed[1]);
+		task.label = release.version  + " "+labelDateFormat(release.executed[1]) + " -exe";
 		task.category = release.project;
 		task.startDate = release.executed[0];
 		task.endDate = release.executed[1];
+		task.class = "executed";
 		return task;
 	}
 
