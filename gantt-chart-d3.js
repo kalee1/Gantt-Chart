@@ -390,9 +390,17 @@ d3.gantt = function() {
 	     .call(function(d){ assignEvent("task", d);});
 
 		// add progress bar's rect
+
+		var progressBarHeight = categoryAxisRenderer.config().progressBarPorcHeight;
+		if(progressBarHeight == null){
+			progressBarHeight = categoryAxisRenderer.config().barHeight;
+		} else {
+			progressBarHeight = progressBarHeight*categoryAxisRenderer.config().barHeight / 100;
+		}
+
 		group.append("rect")
-		 .attr("y", 0)
-		 .attr("height", categoryAxisRenderer.config().barHeight )
+		 .attr("y", (categoryAxisRenderer.config().barHeight-progressBarHeight)/2)
+		 .attr("height", progressBarHeight )
 		 .attr("width", function (d) { 
 		 		if (hasOwnProperty(d,"progress")){
 		 			return d.progress * calculateBarWidth(d);
@@ -658,6 +666,7 @@ d3.categoryAxisRenderer = function(){
 	var config = {
 		"axisLength": null,
 		"barHeight" : 15,
+		"progressBarPorcHeight" : 70,
 		"barPadding" : 5,
 		"barMargin" : 5,
 		"minTaskBandHeight": 30,
