@@ -119,13 +119,6 @@ d3.releaseTimeline = function(){
 			milestones.push( createMSFromDep( d ) );
 		});
 
-
-    milestones.push({"id": 1,"category":"GRETEL", "label":"deployment 1","date":new Date(2014,4,12)});
-    milestones.push({"id": 2,"category":"GRETEL", "label":"deployment 2","date":new Date(2014,4,15)});
-
-    console.log(milestones)
-
-
 		return milestones;
 	}
 

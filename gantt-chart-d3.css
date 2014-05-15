@@ -4,20 +4,20 @@
 }
 
 .task-bar {
-	fill: grey;
+	fill: #FF8B00;
 }
 
 .task-progress-bar {
-	fill: LightSlateGrey;
+	fill: #64AAD0;
 }
 
 .task-bar:hover {
-	fill: darkgray;
-	stroke: black;
+	fill: #FFBF73;
+	stroke: #64AAD0;
 }
 
 .task-label {
-	fill: white;
+	fill: #034569;
 }
 
 .milestone-mark {
