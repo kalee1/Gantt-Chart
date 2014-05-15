@@ -105,7 +105,7 @@ d3.releaseTimeline = function(){
 	}
 	var createExecutedTaskFromRelease = function( release ){
 		var task = {};
-		task.id = (!hasOwnProperty(release,"id"))? (10000+release.id) : Math.random() * 100000000;
+		task.id = (hasOwnProperty(release,"id"))? (10000+release.id) : Math.random() * 100000000;
 		task.label = release.version  + " "+labelDateFormat(release.executed[1]);
 		task.category = release.project;
 		task.startDate = release.executed[0];
@@ -123,13 +123,15 @@ d3.releaseTimeline = function(){
     milestones.push({"id": 1,"category":"GRETEL", "label":"deployment 1","date":new Date(2014,4,12)});
     milestones.push({"id": 2,"category":"GRETEL", "label":"deployment 2","date":new Date(2014,4,15)});
 
+    console.log(milestones)
+
 
 		return milestones;
 	}
 
 	var createMSFromDep = function( deployment ){
 		var milestone = {};
-		milestone.id = (!hasOwnProperty(deployment,"id"))? deployment.id : Math.random() * 100000000;
+		milestone.id = (hasOwnProperty(deployment,"id"))? deployment.id : Math.random() * 100000000;
 		milestone.category = deployment.project;
 		milestone.label = deployment.version;
 		milestone.date = deployment.date;
