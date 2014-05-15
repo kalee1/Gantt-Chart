@@ -21,12 +21,12 @@
 }
 
 .milestone-mark {
-	stroke: black;
+	stroke: #A65A00;
 	stroke-width: 3;
 }
 
 .milestone-label {
-	fill: grey;
+	fill: #034569;
 }
 
 .dateline-line {
