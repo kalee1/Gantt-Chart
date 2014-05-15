@@ -55,10 +55,8 @@ var categories = [ "D Job", "P Job", "E Job", "A Job", "N Job" ];
 
 
 for(j=0; j<20;j++){
-    // tasks.push({"id": (100 + i).toString(),"startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"category":"Project_" + i, "label":"task" +(100+i),"style":"fill:red"});
     tasks.push({"id": (100 + j).toString(),"startDate":new Date(2014,1,6),"endDate":new Date(2014,1,8+j),"category":"E Job", "label":"task" +(100+j),"style":"fill:red"});
 }
-    // categories.push("Project_" + i)
 
 tasks.sort(function(a, b) {
     return a.startDate - b.startDate;
@@ -71,9 +69,6 @@ var minDate = tasks[0].startDate;
 
 var format = "%B" //"%H:%M";
 var timeDomainString = "1month";
-
-
-
 
 var gantt = d3.gantt().categories(categories).tickFormat(format);
 var margin = {
@@ -93,52 +88,37 @@ gantt.tasks(tasks).mileStones(mileStones).dateLines(dateLines)
 
 
 gantt.draw();
-
 gantt();
 
+function changeTimeformat( formatString ){
+    timeDomainString  = formatString;
+    changeTimeDomain(timeDomainString);
+    gantt.draw();
+}
+
 function changeTimeDomain(timeDomainString) {
-/*    this.timeDomainString = timeDomainString;
+    this.timeDomainString = timeDomainString;
+    console.log("timedomain: " + timeDomainString)
     switch (timeDomainString) {
-    case "1hr":
-	format = "%H:%M:%S";
-	gantt.timeDomain([ d3.time.hour.offset(getEndDate(), -1), getEndDate() ]);
-	break;
-	
-    case "3hr":
-	format = "%H:%M";
-	gantt.timeDomain([ d3.time.hour.offset(getEndDate(), -3), getEndDate() ]);
-	break;
 
-    case "6hr":
-	format = "%H:%M";
-	gantt.timeDomain([ d3.time.hour.offset(getEndDate(), -6), getEndDate() ]);
-	break;
-
-    case "1day":
-	format = "%H:%M";
-	gantt.timeDomain([ d3.time.day.offset(getEndDate(), -1), getEndDate() ]);
-	break;
-
-    case "1week":
-	format = "%a %H:%M";
-	gantt.timeDomain([ d3.time.day.offset(getEndDate(), -7), getEndDate() ]);
-	break;
-
-    case "1month":
-    	format = "%d/%B";
-        // gantt.timeDomain([ d3.time.day.offset(getEndDate(), -30), getEndDate() ]);
-        gantt.timeDomain([ new Date(2014, 1,4), getEndDate() ]);
+        case "1day":
+        	format = "%H:%M";
+        	gantt.timeDomain([ d3.time.day.offset(getEndDate(), -1), getEndDate() ]);
     	break;
 
-    default:
-	format = "%H:%M"
+        case "1week":
+        	format = "%a %H:%M";
+        	gantt.timeDomain([ d3.time.day.offset(getEndDate(), -7), getEndDate() ]);
+    	break;
 
+        case "1month":
+        	format = "%d/%B";
+            gantt.timeDomain([ d3.time.day.offset(getEndDate(), -30), getEndDate() ]);
+       	break;
+
+        default:
+        format = "%d/%B";
     }
-*/
-    // gantt.timeDomain([ new Date(2014, 1,4), getEndDate() ]);
-    gantt.timeDomain([ d3.time.day.offset(getEndDate(), -10), getEndDate() ]);
-
-    format = "%d/%B";
     gantt.tickFormat(format);
 }
 
@@ -152,16 +132,11 @@ function getEndDate() {
 }
 
 function addTask() {
-
-    // {"id": "1","startDate":new Date(2014,1,2),"endDate":new Date(2014,1,5),"category":"E Job","status":"RUNNING", "label":"task1","pos":20},
-
     var lastEndDate = getEndDate();
     var taskStatusKeys = Object.keys(taskStatus);
     var taskStatusName = taskStatusKeys[Math.floor(Math.random() * taskStatusKeys.length)];
     var category = categories[0];//categories[Math.floor(Math.random() * categories.length)];
     var label = categories[Math.floor(Math.random() * categories.length)] + lastEndDate;
-
-// {"id": "3","startDate":new Date(2014,1,10),"endDate":new Date(2014,1,12),"category":"E Job","status":"RUNNING", "label":"task3"}
 
     tasks.push({
     "id" :  Math.floor((Math.random()*1000000)+1),
@@ -173,12 +148,12 @@ function addTask() {
     });
 
     changeTimeDomain(timeDomainString);
-    gantt.draw(tasks);
+    gantt.draw();
 };
 
 function removeTask() {
     tasks.pop();
     changeTimeDomain(timeDomainString);
-    gantt.draw(tasks);
+    gantt.draw();
 };
 
