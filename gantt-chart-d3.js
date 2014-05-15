@@ -130,11 +130,11 @@ d3.gantt = function() {
 		return chartGroup;
     }
 
-    var assignEvent = function (objectType, selection){
-    	handlers = eventHandlers[objectType];
+    var assignEvent = function (selection, objectType){
+    	var handlers = eventHandlers[objectType];
     	for(h in handlers){
     		selection.on(h,function(d){ 
-    			handlers[h](d)
+    			eventHandlers[objectType][h](d);
     		})
     	}
     }
@@ -288,7 +288,7 @@ d3.gantt = function() {
 			 .attr("height", getChartHeight())
 			 .attr("width", 10)
 		 	 .attr("transform", dateLineTransform)
-		 	 .call(function(d){ assignEvent("dateline", d);});
+		 	 .call(assignEvent,"dateline");
 
     	group.append("line")
     		.attr("x1","0")
@@ -323,7 +323,7 @@ d3.gantt = function() {
 		 	.attr("class", "g_milestone") 
 		 	.attr("y", 0)
 		 	.attr("transform", mileStoneTransform)
-		 	.call(function(d){ assignEvent("milestone", d);});
+		 	.call(assignEvent, "milestone");
 
 
 		// add milestone mark
@@ -387,7 +387,8 @@ d3.gantt = function() {
 		 .attr("width", calculateBarWidth)
 	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-bar"; else return "task-bar";})
 	     .attr("style",function (d) { return d.style;})
-	     .call(function(d){ assignEvent("task", d);});
+	     .call(assignEvent,"task");
+
 
 		// add progress bar's rect
 
@@ -409,7 +410,7 @@ d3.gantt = function() {
 		 		}
 		 	})
 	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-progress-bar"; else return "task-progress-bar";})
-	     .call(function(d){ assignEvent("task", d);});
+	     .call(assignEvent, "task");
 
 		// add labels
 		group.append("text")

@@ -30,12 +30,22 @@ var datelines = [
 	{"date": new Date(2014,1,8)}
 ];
 
+function onTaskClick( task ){
+  alert("Clicked on tasks " + task.label)
+}
+function onMilestoneOver ( milestone ){
+  alert("You pass over milestone " + milestone.label)
+}
+
 var gantt = d3.gantt()
   .categories(categories)
   .tasks(tasks)
   .mileStones(milestones)
+  .taskEventHandler("click",onTaskClick)
+  .milestoneEventHandler("mouseover", onMilestoneOver)
   .dateLines(datelines)
   .draw();
+
 
 
 </script>	

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Gantt Chart Example 1</title>
+<title>Gantt Chart Example 2</title>
 <link type="text/css" href="../gantt-chart-d3.css" rel="stylesheet" />
 </head>
 <body>
@@ -10,7 +10,7 @@
 
 <script type="text/javascript">
 
-var categories = [ "Project A", "Project B", "Project C"]
+var categories = [ "Project A", "Project B"]
 
 var tasks = [
 	{"id": "1","category":"Project A", "label":"task1","startDate":new Date(2014,1,5),"endDate":new Date(2014,1,10)},
@@ -19,6 +19,11 @@ var tasks = [
 ];
 
 
+function onTaskClick( task ){
+
+
+}
+
 var gantt = d3.gantt().categories(categories)
   .tasks(tasks)
   .draw();
@@ -26,16 +31,7 @@ var gantt = d3.gantt().categories(categories)
 
 
 
-
-var timeDomainStart = tasks.reduce( function(a,b) { 
-
-	console.log("A: " + a.startDate + " B: " +b.startDate +" -> " + ((a.startDate < b.startDate) ? a.startDate : b.startDate))
-		return ((a.startDate < b.startDate) ? a : b)
-	} );
-console.log("timeDomainStart " + timeDomainStart);
-
-
-
 </script>	
+<div id="task" style="text-align:center"> asdfas</div>
 </body>
 </html>
