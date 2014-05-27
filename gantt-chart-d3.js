@@ -19,18 +19,18 @@
 				g.g_dateline
 					line.dateline-line
 					text.dateline-label
-			g.xaxis-group
+			g.xaxis-node
 				path.domain
 				line.tickX minor
 				g.tickX major
 					line
 					text
-			g.yaxis-group
+			g.yaxis-node
 				line.axisY
 				line.tickY
 				g
 					text.tickY-label 
-			g.grid-group
+			g.grid-node
 				line.gridX
 				line.gridY
 
@@ -70,6 +70,7 @@ d3.gantt = function() {
     // axis renderers
     var categoryAxisRenderer = d3.categoryAxisRenderer();
     var timeAxisRenderer = d3.timeAxisRenderer();
+    var taskRenderer = d3.taskRenderer();
 
     var eventHandlers = {
     	"task": {},
@@ -125,16 +126,19 @@ d3.gantt = function() {
 	/**
 		Selects root chart "g" node for current gantt chart.
 	*/
-    var getChartGroup = function() {
-		var chartGroup = d3.select("body").selectAll("svg").data([id], function(d){ return d;}).selectAll(".gantt-chart");
-		return chartGroup;
+    var getChartnode = function() {
+		var chartnode = d3.select("body").selectAll("svg").data([id], function(d){ return d;}).selectAll(".gantt-chart");
+		return chartnode;
     }
 
     var assignEvent = function (selection, objectType){
     	var handlers = eventHandlers[objectType];
     	for(h in handlers){
     		selection.on(h,function(d){ 
-    			eventHandlers[objectType][h](d);
+    			if(eventHandlers[objectType].hasOwnProperty(h)){
+    				// if there's a handler for current event
+    				eventHandlers[objectType][h](d);
+    			}
     		})
     	}
     }
@@ -192,25 +196,25 @@ d3.gantt = function() {
     }
 
     var renderAxis = function() {
-		var chartGroup = getChartGroup();
+		var chartnode = getChartnode();
 
-		// create y axis group if it not exists
-		var yAxisGroup = chartGroup.select("g.yaxis-group");
-		categoryAxisRenderer.draw(yAxisGroup);
+		// create y axis node if it not exists
+		var yAxisnode = chartnode.select("g.yaxis-node");
+		categoryAxisRenderer.draw(yAxisnode);
 
     	// build x axis
-		var xAxisGroup = chartGroup.select("g.xaxis-group");
-		xAxisGroup.attr("transform", "translate(0, " + getChartHeight() + ")")
+		var xAxisnode = chartnode.select("g.xaxis-node");
+		xAxisnode.attr("transform", "translate(0, " + getChartHeight() + ")")
 
-		timeAxisRenderer.draw(xAxisGroup)
+		timeAxisRenderer.draw(xAxisnode)
     }
 
     var drawGrid = function(){
-		var gridGroup = getChartGroup().select("g.grid-group")
+		var gridnode = getChartnode().select("g.grid-node")
 
 		// draw x axis grid lines
-		gridGroup.selectAll("line.gridX").remove();
-		gridGroup.selectAll("line.gridX")
+		gridnode.selectAll("line.gridX").remove();
+		gridnode.selectAll("line.gridX")
 		  .data(timeAxisRenderer.ticks(),function(d){ return d;})
 		  .enter().append("line")
 		  .attr("class", "gridX")
@@ -223,8 +227,8 @@ d3.gantt = function() {
 		// draw y axis grid lines
 		var gridWidth = getChartWidth();
 
-		gridGroup.selectAll("line.gridY").remove();
-		gridGroup.selectAll("line.gridY").data(categoryAxisRenderer.ticks(), function(d){ return d;}).enter()
+		gridnode.selectAll("line.gridY").remove();
+		gridnode.selectAll("line.gridY").data(categoryAxisRenderer.ticks(), function(d){ return d;}).enter()
 		  .append("line")
 		  .attr("class", "gridY")
 		  .attr("x1", 0)
@@ -236,7 +240,7 @@ d3.gantt = function() {
 
     var initChartCanvas = function (){
 
-		var chartGroup = d3.select("body").selectAll("svg").data([id], function(d){ return d;})
+		var chartnode = d3.select("body").selectAll("svg").data([id], function(d){ return d;})
 			.enter()
 			.append("svg")
 			.attr("class", "chart")
@@ -244,11 +248,11 @@ d3.gantt = function() {
 			.attr("class", "gantt-chart")
 			.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
-		// add grouping elements for graph components
-		var gridGroup = chartGroup.append("g").attr("class","grid-group");
-		var yAxisGroup = chartGroup.append("g").attr("class", "yaxis-group");
-		var xAxisGroup = chartGroup.append("g").attr("class", "xaxis-group")
-		var barGroup = chartGroup.append("g").attr("class", "gantt-bars");
+		// add nodeing elements for graph components
+		var gridnode = chartnode.append("g").attr("class","grid-node");
+		var yAxisnode = chartnode.append("g").attr("class", "yaxis-node");
+		var xAxisnode = chartnode.append("g").attr("class", "xaxis-node")
+		var barnode = chartnode.append("g").attr("class", "gantt-bars");
     }
 
 	var init = function (){
@@ -274,23 +278,21 @@ d3.gantt = function() {
      */
     var drawDateLines = function (dateLines){
 		var visibleDL = dateLines.filter(isDLVisible);
-		var barGroup = getChartGroup().select(".gantt-bars");
+		var barnode = getChartnode().select(".gantt-bars");
 
 		// remove previous objecs
-		barGroup.selectAll("g.g_dateline").remove();
+		barnode.selectAll("g.g_dateline").remove();
 
 		// create new graphic objects
-		var taskGSelection = barGroup.selectAll("g").data(visibleDL,function(d) { return d.date; });
+		var taskGSelection = barnode.selectAll("g").data(visibleDL,function(d) { return d.date; });
 
-		var group = taskGSelection.enter().append("g")
+		var node = taskGSelection.enter().append("g")
 		 	.attr("class", "g_dateline") 
 		 	.attr("y", 0)
-			 .attr("height", getChartHeight())
-			 .attr("width", 10)
 		 	 .attr("transform", dateLineTransform)
 		 	 .call(assignEvent,"dateline");
 
-    	group.append("line")
+    	node.append("line")
     		.attr("x1","0")
     		.attr("y1","0")
     		.attr("x2","0")
@@ -298,7 +300,7 @@ d3.gantt = function() {
 			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-line"; else return "dateline-line";})
     		.attr("style",function (d) { return d.style;});
 
-    	group.append("text")
+    	node.append("text")
     		.attr("x","7")
     		.attr("y",getChartHeight() + 5)
 			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "dateline-label";})
@@ -310,16 +312,16 @@ d3.gantt = function() {
 
 		var visibleMs = mileStones.filter(isMsVisible);
 
-		var chartGroup = getChartGroup();
-		var barGroup =  chartGroup.select(".gantt-bars");
+		var chartnode = getChartnode();
+		var barnode =  chartnode.select(".gantt-bars");
 
 		// delete previous svg objects
-		barGroup.selectAll("g.g_mileStone").remove();
+		barnode.selectAll("g.g_mileStone").remove();
 
 		// create new graphic objects
-		var taskGSelection = barGroup.selectAll("g.g_milestone").data(visibleMs,mskeyFunction);
+		var taskGSelection = barnode.selectAll("g.g_milestone").data(visibleMs,mskeyFunction);
 
-		var group = taskGSelection.enter().append("g")
+		var node = taskGSelection.enter().append("g")
 		 	.attr("class", "g_milestone") 
 		 	.attr("y", 0)
 		 	.attr("transform", mileStoneTransform)
@@ -327,7 +329,7 @@ d3.gantt = function() {
 
 
 		// add milestone mark
-    	group.append("circle")
+    	node.append("circle")
     		.attr("cx",0)
     		.attr("cy","0")
 			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-mark"; else return "milestone-mark";})
@@ -335,7 +337,7 @@ d3.gantt = function() {
     		.attr("r",mileStoneRadius);
 
 		// add labels
-		group.append("text")
+		node.append("text")
 			.attr("x",  mileStoneRadius*2 +6)
 			.attr("y",  mileStoneRadius)
 			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-label"; else return "milestone-label";})
@@ -365,23 +367,28 @@ d3.gantt = function() {
 	var drawTasks = function (tasks){
 		var visibleTasks = tasks.filter(isTaskVisible);
 
-		var chartGroup = getChartGroup();
-		var barGroup =  chartGroup.select(".gantt-bars");
+		var chartnode = getChartnode();
+		var barnode =  chartnode.select(".gantt-bars");
 
 		// remove all previous svg objects
-		barGroup.selectAll("g").remove();
+		barnode.selectAll("g").remove();
 
 		// append new graphics
-		var taskGSelection = barGroup.selectAll("g.g_task").data(visibleTasks,keyFunction);
-		var group = taskGSelection.enter().append("g")
+		var taskGSelection = barnode.selectAll("g.g_task").data(visibleTasks,keyFunction);
+		var node = taskGSelection.enter().append("g")
 		 .attr("class","g_task") 
 		 .attr("y", 0)
 		 .attr("transform", taskBarTransform)
-		 .attr("height", function(d) { return categoryAxisRenderer.config().barHeight; })
-		 .attr("width", calculateBarWidth);
+	     .call(assignEvent, "task");
+
+
+		taskRenderer.calculateBarWidth(calculateBarWidth).draw(node);
+
+
+/*
 
 		// add tasks bar's rect
-		group.append("rect")
+		node.append("rect")
 		 .attr("y", 0)
 		 .attr("height", categoryAxisRenderer.config().barHeight)
 		 .attr("width", calculateBarWidth)
@@ -399,7 +406,7 @@ d3.gantt = function() {
 			progressBarHeight = progressBarHeight*categoryAxisRenderer.config().barHeight / 100;
 		}
 
-		group.append("rect")
+		node.append("rect")
 		 .attr("y", (categoryAxisRenderer.config().barHeight-progressBarHeight)/2)
 		 .attr("height", progressBarHeight )
 		 .attr("width", function (d) { 
@@ -413,15 +420,15 @@ d3.gantt = function() {
 	     .call(assignEvent, "task");
 
 		// add labels
-		group.append("text")
+		node.append("text")
 			.attr("y", function(d) { return 3 + categoryAxisRenderer.config().barHeight /2; })
 			.attr("x", function(d) { return 5; })
 			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "task-label";})
-			.text(function(d){ return d.label;})
+			.text(function(d){ return d.label;})*/
     }
 
-    var getGroupPosition = function(groupNode){
-    	var tfrm = groupNode.attr("transform");
+    var getnodePosition = function(nodeNode){
+    	var tfrm = nodeNode.attr("transform");
 
 		var pos_init = tfrm.indexOf("(");
 		var pos_comma = tfrm.indexOf(",");
@@ -749,7 +756,7 @@ d3.categoryAxisRenderer = function(){
 		node.selectAll("g").remove();
 		node.selectAll("g").data(categories, function(d){return d;}).enter()
 			.append("g")
-			.attr("transform", catGroupTranslation)
+			.attr("transform", catnodeTranslation)
 			.append("text")
 			.attr("x", "-5")
 			.attr("style", "text-anchor: end")
@@ -785,7 +792,7 @@ d3.categoryAxisRenderer = function(){
 		return config.mileStoneHeight;
 	};
 
-	var catGroupTranslation = function(d){
+	var catnodeTranslation = function(d){
 		var range = getCategoryRange(d);
 		var ypos = range[0] + (range[1]-range[0])/2;
 
@@ -1003,3 +1010,118 @@ function hasOwnProperty (obj, prop) {
 };
 
 
+
+
+d3.taskRenderer = function(){
+
+	var scale = 1;
+	var timeDomain = []
+	var config = {
+		"axisLength": 600
+	};
+	var x = null;
+	var xAxis = null;
+    var formatPattern = "%d/%b";
+
+	/* PUBLIC METHODS */
+
+	/* Calculates categories ranges */
+	taskRenderer.init  = function(){	
+		x = d3.time.scale().domain([ timeDomain[0], timeDomain[1] ]).range([ 0, config.axisLength ]).clamp(true);
+		var formatter = d3.time.format(new String(formatPattern));
+		xAxis = d3.svg.axis().scale(x).orient("bottom").tickSubdivide(true).tickSize(8).tickPadding(8).tickFormat(formatter);
+	}
+
+
+	var drawTasks = function (tasks){
+		var visibleTasks = tasks.filter(isTaskVisible);
+
+		var chartnode = getChartnode();
+		var barnode =  chartnode.select(".gantt-bars");
+
+		// remove all previous svg objects
+		barnode.selectAll("g").remove();
+
+		// append new graphics
+		var taskGSelection = barnode.selectAll("g.g_task").data(visibleTasks,keyFunction);
+		var node = taskGSelection.enter().append("g")
+		 .attr("class","g_task") 
+		 .attr("y", 0)
+		 .attr("transform", taskBarTransform);
+
+		
+    }
+	/* Draws axis hanging on the svg node passed as parameter */
+	taskRenderer.draw  = function( node ){
+// add tasks bar's rect
+		node.append("rect")
+		 .attr("y", 0)
+		 .attr("height", 15)//categoryAxisRenderer.config().barHeight)
+		 .attr("width", calculateBarWidth)
+	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-bar"; else return "task-bar";})
+	     .attr("style",function (d) { return d.style;});
+	     // .call(assignEvent,"task");
+
+
+		// add progress bar's rect
+
+		// var progressBarHeight = categoryAxisRenderer.config().progressBarPorcHeight;
+		// if(progressBarHeight == null){
+		// 	progressBarHeight = categoryAxisRenderer.config().barHeight;
+		// } else {
+		// 	progressBarHeight = progressBarHeight*categoryAxisRenderer.config().barHeight / 100;
+		// }
+		var progressBarHeight = 1;
+
+		node.append("rect")
+		 .attr("y", 0)//(categoryAxisRenderer.config().barHeight-progressBarHeight)/2)
+		 .attr("height", 15 )
+		 .attr("width", function (d) { 
+		 		if (hasOwnProperty(d,"progress")){
+		 			return d.progress * calculateBarWidth(d);
+		 		} else {
+		 			return 0;
+		 		}
+		 	})
+	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-progress-bar"; else return "task-progress-bar";});
+	     // .call(assignEvent, "task");
+
+		// add labels
+		node.append("text")
+			.attr("y", 3)//function(d) { return 3 + categoryAxisRenderer.config().barHeight /2; })
+			.attr("x", 5)//function(d) { return 5; })
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "task-label";})
+			.text(function(d){ return d.label;})
+	}
+
+	/* PRIVATE METHODS */
+
+	/* GETTER / SETTER METHODS */
+
+	
+
+	taskRenderer.calculateBarWidth = function(value) {
+		if (!arguments.length)
+		    return calculateBarWidth;
+		calculateBarWidth = value
+		return taskRenderer;
+    };
+
+	taskRenderer.config = function(value) {
+		if (!arguments.length)
+		    return config;
+		// copy values in config object
+		for(var k in config) config[k]=value[k];
+		return taskRenderer;
+    };
+
+	taskRenderer.configValue = function(property, value) {
+		config[property]=value;
+		return taskRenderer;
+    };
+
+	function taskRenderer(){
+	};
+	
+	return taskRenderer;
+}
