@@ -37,13 +37,50 @@ d3.releaseTimeline = function(){
 	/*	  PUBLIC API          */
 	/**************************/
 
+	var extractCategories = function( lst ){
+		var uniqueCategories = [];
+		lst.forEach(function(element){
+			if(element.hasOwnProperty("category")){
+				if (uniqueCategories.indexOf(element.category)==-1){
+					uniqueCategories.push(element.category);
+				}
+			}
+		})
+		return uniqueCategories;
+	}
+
+	/**
+	 Order releases by their planned starting day
+	*/
+	var sortReleases = function( releases ){
+		var sorted = releases.sort(function(a,b){
+			return a.planned[0] > b.planned[0];
+		})
+		return sorted;
+	}
+
+	var arrayUnique = function(array) {
+	    var a = array.concat();
+	    for(var i=0; i<a.length; ++i) {
+	        for(var j=i+1; j<a.length; ++j) {
+	            if(a[i] === a[j])
+	                a.splice(j--, 1);
+	        }
+	    }
+	    return a;
+	};
+
 	releaseTimeline.releases = function( value /* release [] */){
 		if (!arguments.length)
 		    return releases;
-		releases = value;
+
+		releases = sortReleases(value);
+
 		var tasks = createTasksFromRelease(releases)
 		gantt.tasks(tasks);
-		var categories = ["GRETEL"]
+
+		var actualCategories = gantt.categories();
+		var categories = arrayUnique(actualCategories.concat(extractCategories(tasks)));
 		gantt.categories(categories)
 
 		return releaseTimeline;
@@ -55,6 +92,10 @@ d3.releaseTimeline = function(){
 		deployments = value;
 		var deps = createMSsFromDeployment(deployments)
 		gantt.mileStones(deps);
+
+		var actualCategories = gantt.categories();
+		var categories = arrayUnique(actualCategories.concat(extractCategories(deps)));
+		gantt.categories(categories)
 
 		return releaseTimeline;
 	};
