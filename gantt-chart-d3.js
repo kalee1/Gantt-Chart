@@ -318,14 +318,16 @@ d3.gantt = function() {
 		// delete previous svg objects
 		barnode.selectAll("g.g_mileStone").remove();
 
-		// create new graphic objects
+		// append new task groups
 		var taskGSelection = barnode.selectAll("g.g_milestone").data(visibleMs,mskeyFunction);
-
-		var node = taskGSelection.enter().append("g")
-		 	.attr("class", "g_milestone") 
-		 	.attr("y", 0)
+		var nodes = taskGSelection.enter().append("g")
+			.attr("class", "g_milestone") 
+			.attr("y", 0)
 		 	.attr("transform", mileStoneTransform)
-		 	.call(assignEvent, "milestone");
+
+	    // draw task bars and
+	    msRenderer.eventHandlers(eventHandlers["milestone"]).draw(nodes);
+
 
 
 		// add milestone mark
@@ -373,58 +375,15 @@ d3.gantt = function() {
 		// remove all previous svg objects
 		barnode.selectAll("g").remove();
 
-		// append new graphics
+		// append new task groups
 		var taskGSelection = barnode.selectAll("g.g_task").data(visibleTasks,keyFunction);
-		var node = taskGSelection.enter().append("g")
+		var nodes = taskGSelection.enter().append("g")
 		 .attr("class","g_task") 
 		 .attr("y", 0)
-		 .attr("transform", taskBarTransform)
-	     .call(assignEvent, "task");
+		 .attr("transform", taskBarTransform);
 
-	    // draw tasks
-	    taskRenderer.calculateBarWidth(calculateBarWidth).draw(node);
-
-
-/*
-
-		// add tasks bar's rect
-		node.append("rect")
-		 .attr("y", 0)
-		 .attr("height", categoryAxisRenderer.config().barHeight)
-		 .attr("width", calculateBarWidth)
-	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-bar"; else return "task-bar";})
-	     .attr("style",function (d) { return d.style;})
-	     .call(assignEvent,"task");
-
-
-		// add progress bar's rect
-
-		var progressBarHeight = categoryAxisRenderer.config().progressBarPorcHeight;
-		if(progressBarHeight == null){
-			progressBarHeight = categoryAxisRenderer.config().barHeight;
-		} else {
-			progressBarHeight = progressBarHeight*categoryAxisRenderer.config().barHeight / 100;
-		}
-
-		node.append("rect")
-		 .attr("y", (categoryAxisRenderer.config().barHeight-progressBarHeight)/2)
-		 .attr("height", progressBarHeight )
-		 .attr("width", function (d) { 
-		 		if (hasOwnProperty(d,"progress")){
-		 			return d.progress * calculateBarWidth(d);
-		 		} else {
-		 			return 0;
-		 		}
-		 	})
-	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-progress-bar"; else return "task-progress-bar";})
-	     .call(assignEvent, "task");
-
-		// add labels
-		node.append("text")
-			.attr("y", function(d) { return 3 + categoryAxisRenderer.config().barHeight /2; })
-			.attr("x", function(d) { return 5; })
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "task-label";})
-			.text(function(d){ return d.label;})*/
+	    // draw task bars and
+	    taskRenderer.calculateBarWidth(calculateBarWidth).eventHandlers(eventHandlers["task"]).draw(nodes);
     }
 
     var getnodePosition = function(nodeNode){
@@ -872,7 +831,6 @@ d3.categoryAxisRenderer = function(){
 }
 
 
-
 d3.overlappingResolver = function(){
 	var categories = [];
 	var tasks = [];
@@ -1010,18 +968,21 @@ function hasOwnProperty (obj, prop) {
 };
 
 
-
-
 d3.taskRenderer = function(){
 
 	var scale = 1;
 	var timeDomain = []
 	var config = {
-		"axisLength": 600
+		"axisLength": 600,
+		"barHeight" : 15,
+		"progressBarHeight" : 5
 	};
 	var x = null;
 	var xAxis = null;
     var formatPattern = "%d/%b";
+    var eventAssigner = null;
+    var calculateBarWidth = null;
+    var eventHandlers = null;
 
 	/* PUBLIC METHODS */
 
@@ -1032,6 +993,11 @@ d3.taskRenderer = function(){
 		xAxis = d3.svg.axis().scale(x).orient("bottom").tickSubdivide(true).tickSize(8).tickPadding(8).tickFormat(formatter);
 	}
 
+    var assignEvent = function (selection){
+    	for(h in eventHandlers){
+    		selection.on(h,eventHandlers[h]);
+    	}
+    }
 
 	var drawTasks = function (tasks){
 		var visibleTasks = tasks.filter(isTaskVisible);
@@ -1051,31 +1017,22 @@ d3.taskRenderer = function(){
 
 		
     }
-	/* Draws axis hanging on the svg node passed as parameter */
+
+	/* Draws taks bars hanging on the svg node passed as parameter */
 	taskRenderer.draw  = function( node ){
-// add tasks bar's rect
+		// add tasks bar's rect
 		node.append("rect")
 		 .attr("y", 0)
-		 .attr("height", 15)//categoryAxisRenderer.config().barHeight)
+		 .attr("height", config.barHeight)
 		 .attr("width", calculateBarWidth)
 	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-bar"; else return "task-bar";})
-	     .attr("style",function (d) { return d.style;});
-	     // .call(assignEvent,"task");
-
-
+	     .attr("style",function (d) { return d.style;})
+	     .call(assignEvent);
+ 
 		// add progress bar's rect
-
-		// var progressBarHeight = categoryAxisRenderer.config().progressBarPorcHeight;
-		// if(progressBarHeight == null){
-		// 	progressBarHeight = categoryAxisRenderer.config().barHeight;
-		// } else {
-		// 	progressBarHeight = progressBarHeight*categoryAxisRenderer.config().barHeight / 100;
-		// }
-		var progressBarHeight = 1;
-
 		node.append("rect")
-		 .attr("y", 0)//(categoryAxisRenderer.config().barHeight-progressBarHeight)/2)
-		 .attr("height", 15 )
+		 .attr("y", (config.barHeight-config.progressBarHeight)/2)
+		 .attr("height", config.progressBarHeight )
 		 .attr("width", function (d) { 
 		 		if (hasOwnProperty(d,"progress")){
 		 			return d.progress * calculateBarWidth(d);
@@ -1083,13 +1040,13 @@ d3.taskRenderer = function(){
 		 			return 0;
 		 		}
 		 	})
-	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-progress-bar"; else return "task-progress-bar";});
-	     // .call(assignEvent, "task");
+	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-progress-bar"; else return "task-progress-bar";})
+	     .call(assignEvent);
 
 		// add labels
 		node.append("text")
-			.attr("y", 3)//function(d) { return 3 + categoryAxisRenderer.config().barHeight /2; })
-			.attr("x", 5)//function(d) { return 5; })
+			.attr("y", function(d) { return 3 + config.barHeight /2; })
+			.attr("x", 5)
 			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "task-label";})
 			.text(function(d){ return d.label;})
 	}
@@ -1098,7 +1055,12 @@ d3.taskRenderer = function(){
 
 	/* GETTER / SETTER METHODS */
 
-	
+	taskRenderer.eventHandlers = function(value){
+		if (!arguments.length)
+		    return eventHandlers;
+		eventHandlers = value;
+		return taskRenderer;
+	}
 
 	taskRenderer.calculateBarWidth = function(value) {
 		if (!arguments.length)
@@ -1125,3 +1087,103 @@ d3.taskRenderer = function(){
 	
 	return taskRenderer;
 }
+
+
+d3.msRenderer = function(){
+
+	var config = {};
+
+	/* PUBLIC METHODS */
+
+    var assignEvent = function (selection){
+    	for(h in eventHandlers){
+    		selection.on(h,eventHandlers[h]);
+    	}
+    }
+
+
+	/* Draws taks bars hanging on the svg node passed as parameter */
+	taskRenderer.draw  = function( node ){
+		// add tasks bar's rect
+		node.append("rect")
+		 .attr("y", 0)
+		 .attr("height", config.barHeight)
+		 .attr("width", calculateBarWidth)
+	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-bar"; else return "task-bar";})
+	     .attr("style",function (d) { return d.style;})
+	     .call(assignEvent);
+ 
+		// add progress bar's rect
+		node.append("rect")
+		 .attr("y", (config.barHeight-config.progressBarHeight)/2)
+		 .attr("height", config.progressBarHeight )
+		 .attr("width", function (d) { 
+		 		if (hasOwnProperty(d,"progress")){
+		 			return d.progress * calculateBarWidth(d);
+		 		} else {
+		 			return 0;
+		 		}
+		 	})
+	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-progress-bar"; else return "task-progress-bar";})
+	     .call(assignEvent);
+
+		// add labels
+		node.append("text")
+			.attr("y", function(d) { return 3 + config.barHeight /2; })
+			.attr("x", 5)
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "task-label";})
+			.text(function(d){ return d.label;})
+	}
+
+	/* PRIVATE METHODS */
+
+	/* GETTER / SETTER METHODS */
+
+	taskRenderer.eventHandlers = function(value){
+		if (!arguments.length)
+		    return eventHandlers;
+		eventHandlers = value;
+		return taskRenderer;
+	}
+
+	taskRenderer.calculateBarWidth = function(value) {
+		if (!arguments.length)
+		    return calculateBarWidth;
+		calculateBarWidth = value
+		return taskRenderer;
+    };
+
+	taskRenderer.config = function(value) {
+		if (!arguments.length)
+		    return config;
+		// copy values in config object
+		for(var k in config) config[k]=value[k];
+		return taskRenderer;
+    };
+
+	taskRenderer.configValue = function(property, value) {
+		config[property]=value;
+		return taskRenderer;
+    };
+
+	function taskRenderer(){
+	};
+	
+	return taskRenderer;
+}
+
+
+		// add milestone mark
+    	node.append("circle")
+    		.attr("cx",0)
+    		.attr("cy","0")
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-mark"; else return "milestone-mark";})
+			.attr("style",function (d) { return d.style;})
+    		.attr("r",mileStoneRadius);
+
+		// add labels
+		node.append("text")
+			.attr("x",  mileStoneRadius*2 +6)
+			.attr("y",  mileStoneRadius)
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-label"; else return "milestone-label";})
+			.text(function(d){ return d.label;})
