@@ -499,6 +499,27 @@ d3.gantt = function() {
 		return gantt;
 	};
 
+	gantt.taskRenderer = function(value){
+		if (!arguments.length)
+		    return taskRenderer;
+		taskRenderer = value;
+		return gantt;
+	};
+	
+	gantt.milestoneRenderer = function(value){
+		if (!arguments.length)
+		    return milestoneRenderer;
+		milestoneRenderer = value;
+		return gantt;
+	};
+
+	gantt.datelineRenderer = function(value){
+		if (!arguments.length)
+		    return datelineRenderer;
+		datelineRenderer = value;
+		return gantt;
+	};
+
     gantt.taskEventHandler = function(event, handler){
     	eventHandlers["task"][event] = handler;
 		return gantt;
