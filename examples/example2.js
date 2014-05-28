@@ -42,6 +42,13 @@ function taskhandler(d){
     console.log("logging action on task " + d.id + " " + d.label)
 }
 
+function mshandler(d){
+    console.log("logging action on milestone " + d.id + " " + d.label)
+}
+
+function datelinehandler(d){
+    console.log("logging action on dateline " + d.date)
+}
 
 
 var taskStatus = {
@@ -83,8 +90,8 @@ changeTimeDomain(timeDomainString);
 
 gantt.tasks(tasks).mileStones(mileStones).dateLines(dateLines)
     .taskEventHandler("click", taskhandler)
-    .milestoneEventHandler("mouseover", taskhandler)
-    .datelineEventHandler("mouseover", taskhandler);
+    .milestoneEventHandler("mouseover", mshandler)
+    .datelineEventHandler("mouseover", datelinehandler);
 
 
 gantt.draw();
