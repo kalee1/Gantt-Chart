@@ -71,6 +71,8 @@ d3.gantt = function() {
     var categoryAxisRenderer = d3.categoryAxisRenderer();
     var timeAxisRenderer = d3.timeAxisRenderer();
     var taskRenderer = d3.taskRenderer();
+    var msRenderer = d3.msRenderer();
+    var datelineRenderer = d3.datelineRenderer();
 
     var eventHandlers = {
     	"task": {},
@@ -286,26 +288,15 @@ d3.gantt = function() {
 		// create new graphic objects
 		var taskGSelection = barnode.selectAll("g").data(visibleDL,function(d) { return d.date; });
 
-		var node = taskGSelection.enter().append("g")
+		var nodes = taskGSelection.enter().append("g")
 		 	.attr("class", "g_dateline") 
 		 	.attr("y", 0)
-		 	 .attr("transform", dateLineTransform)
-		 	 .call(assignEvent,"dateline");
-
-    	node.append("line")
-    		.attr("x1","0")
-    		.attr("y1","0")
-    		.attr("x2","0")
-    		.attr("y2",getChartHeight())
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-line"; else return "dateline-line";})
-    		.attr("style",function (d) { return d.style;});
-
-    	node.append("text")
-    		.attr("x","7")
-    		.attr("y",getChartHeight() + 5)
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "dateline-label";})
-    		.attr("style","writing-mode:tb")
-    		.text(function (d) { var format = d3.time.format('%d/%m/%Y'); return format(d.date);})
+		 	.attr("transform", dateLineTransform)
+		 	.call(assignEvent,"dateline");
+		
+	    // draw datelines and labels
+	    datelineRenderer.configValue("chartHeight",getChartHeight())
+	    	.eventHandlers(eventHandlers["dateline"]).draw(nodes);
     }
     
     var drawMilestones = function (mileStones){
@@ -325,26 +316,9 @@ d3.gantt = function() {
 			.attr("y", 0)
 		 	.attr("transform", mileStoneTransform)
 
-	    // draw task bars and
+	    // draw milestone marks and labels
 	    msRenderer.eventHandlers(eventHandlers["milestone"]).draw(nodes);
-
-
-
-		// add milestone mark
-    	node.append("circle")
-    		.attr("cx",0)
-    		.attr("cy","0")
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-mark"; else return "milestone-mark";})
-			.attr("style",function (d) { return d.style;})
-    		.attr("r",mileStoneRadius);
-
-		// add labels
-		node.append("text")
-			.attr("x",  mileStoneRadius*2 +6)
-			.attr("y",  mileStoneRadius)
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-label"; else return "milestone-label";})
-			.text(function(d){ return d.label;})
-    }
+	}
 
     /* checks if a task is visible */
     var isTaskVisible = function(d){
@@ -969,53 +943,20 @@ function hasOwnProperty (obj, prop) {
 
 
 d3.taskRenderer = function(){
-
-	var scale = 1;
-	var timeDomain = []
 	var config = {
 		"axisLength": 600,
 		"barHeight" : 15,
 		"progressBarHeight" : 5
 	};
-	var x = null;
-	var xAxis = null;
-    var formatPattern = "%d/%b";
     var eventAssigner = null;
     var calculateBarWidth = null;
     var eventHandlers = null;
 
-	/* PUBLIC METHODS */
-
-	/* Calculates categories ranges */
-	taskRenderer.init  = function(){	
-		x = d3.time.scale().domain([ timeDomain[0], timeDomain[1] ]).range([ 0, config.axisLength ]).clamp(true);
-		var formatter = d3.time.format(new String(formatPattern));
-		xAxis = d3.svg.axis().scale(x).orient("bottom").tickSubdivide(true).tickSize(8).tickPadding(8).tickFormat(formatter);
-	}
 
     var assignEvent = function (selection){
     	for(h in eventHandlers){
     		selection.on(h,eventHandlers[h]);
     	}
-    }
-
-	var drawTasks = function (tasks){
-		var visibleTasks = tasks.filter(isTaskVisible);
-
-		var chartnode = getChartnode();
-		var barnode =  chartnode.select(".gantt-bars");
-
-		// remove all previous svg objects
-		barnode.selectAll("g").remove();
-
-		// append new graphics
-		var taskGSelection = barnode.selectAll("g.g_task").data(visibleTasks,keyFunction);
-		var node = taskGSelection.enter().append("g")
-		 .attr("class","g_task") 
-		 .attr("y", 0)
-		 .attr("transform", taskBarTransform);
-
-		
     }
 
 	/* Draws taks bars hanging on the svg node passed as parameter */
@@ -1091,9 +1032,9 @@ d3.taskRenderer = function(){
 
 d3.msRenderer = function(){
 
-	var config = {};
-
-	/* PUBLIC METHODS */
+	var config = {
+		"mileStoneRadius":2
+	};
 
     var assignEvent = function (selection){
     	for(h in eventHandlers){
@@ -1101,37 +1042,22 @@ d3.msRenderer = function(){
     	}
     }
 
-
 	/* Draws taks bars hanging on the svg node passed as parameter */
-	taskRenderer.draw  = function( node ){
-		// add tasks bar's rect
-		node.append("rect")
-		 .attr("y", 0)
-		 .attr("height", config.barHeight)
-		 .attr("width", calculateBarWidth)
-	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-bar"; else return "task-bar";})
-	     .attr("style",function (d) { return d.style;})
-	     .call(assignEvent);
- 
-		// add progress bar's rect
-		node.append("rect")
-		 .attr("y", (config.barHeight-config.progressBarHeight)/2)
-		 .attr("height", config.progressBarHeight )
-		 .attr("width", function (d) { 
-		 		if (hasOwnProperty(d,"progress")){
-		 			return d.progress * calculateBarWidth(d);
-		 		} else {
-		 			return 0;
-		 		}
-		 	})
-	     .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-progress-bar"; else return "task-progress-bar";})
-	     .call(assignEvent);
+	msRenderer.draw  = function( node ){
+ 		// add milestone mark
+    	node.append("circle")
+    		.attr("cx",0)
+    		.attr("cy","0")
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-mark"; else return "milestone-mark";})
+			.attr("style",function (d) { return d.style;})
+    		.attr("r",config.mileStoneRadius)
+    		.call(assignEvent);
 
 		// add labels
 		node.append("text")
-			.attr("y", function(d) { return 3 + config.barHeight /2; })
-			.attr("x", 5)
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "task-label";})
+			.attr("x",  config.mileStoneRadius*2 +6)
+			.attr("y",  config.mileStoneRadius)
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-label"; else return "milestone-label";})
 			.text(function(d){ return d.label;})
 	}
 
@@ -1139,51 +1065,90 @@ d3.msRenderer = function(){
 
 	/* GETTER / SETTER METHODS */
 
-	taskRenderer.eventHandlers = function(value){
+	msRenderer.eventHandlers = function(value){
 		if (!arguments.length)
 		    return eventHandlers;
 		eventHandlers = value;
-		return taskRenderer;
+		return msRenderer;
 	}
 
-	taskRenderer.calculateBarWidth = function(value) {
-		if (!arguments.length)
-		    return calculateBarWidth;
-		calculateBarWidth = value
-		return taskRenderer;
-    };
-
-	taskRenderer.config = function(value) {
+	msRenderer.config = function(value) {
 		if (!arguments.length)
 		    return config;
 		// copy values in config object
 		for(var k in config) config[k]=value[k];
-		return taskRenderer;
+		return msRenderer;
     };
 
-	taskRenderer.configValue = function(property, value) {
+	msRenderer.configValue = function(property, value) {
 		config[property]=value;
-		return taskRenderer;
+		return msRenderer;
     };
 
-	function taskRenderer(){
+	function msRenderer(){
 	};
 	
-	return taskRenderer;
+	return msRenderer;
 }
 
 
-		// add milestone mark
-    	node.append("circle")
-    		.attr("cx",0)
-    		.attr("cy","0")
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-mark"; else return "milestone-mark";})
-			.attr("style",function (d) { return d.style;})
-    		.attr("r",mileStoneRadius);
+d3.datelineRenderer = function(){
 
-		// add labels
+	var config = {
+		"chartHeight":100
+	};
+
+    var assignEvent = function (selection){
+    	for(h in eventHandlers){
+    		selection.on(h,eventHandlers[h]);
+    	}
+    }
+
+	/* Draws taks bars hanging on the svg node passed as parameter */
+	datelineRenderer.draw  = function( node ){
+		node.append("line")
+		.attr("x1","0")
+		.attr("y1","0")
+		.attr("x2","0")
+		.attr("y2",config.chartHeight)
+		.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-line"; else return "dateline-line";})
+		.attr("style",function (d) { return d.style;});
+
 		node.append("text")
-			.attr("x",  mileStoneRadius*2 +6)
-			.attr("y",  mileStoneRadius)
-			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-label"; else return "milestone-label";})
-			.text(function(d){ return d.label;})
+		.attr("x","7")
+		.attr("y",config.chartHeight + 5)
+		.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "dateline-label";})
+		.attr("style","writing-mode:tb")
+		.text(function (d) { var format = d3.time.format('%d/%m/%Y'); return format(d.date);})
+	}
+
+	/* PRIVATE METHODS */
+
+	/* GETTER / SETTER METHODS */
+
+	datelineRenderer.eventHandlers = function(value){
+		if (!arguments.length)
+		    return eventHandlers;
+		eventHandlers = value;
+		return datelineRenderer;
+	}
+
+	datelineRenderer.config = function(value) {
+		if (!arguments.length)
+		    return config;
+		// copy values in config object
+		for(var k in config) config[k]=value[k];
+		return datelineRenderer;
+    };
+
+	datelineRenderer.configValue = function(property, value) {
+		config[property]=value;
+		return datelineRenderer;
+    };
+
+	function datelineRenderer(){
+	};
+	
+	return datelineRenderer;
+}
+
