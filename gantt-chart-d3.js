@@ -19,21 +19,20 @@
 				g.g_dateline
 					line.dateline-line
 					text.dateline-label
-			g.xaxis-node
+			g.xaxis-group
 				path.domain
 				line.tickX minor
 				g.tickX major
 					line
 					text
-			g.yaxis-node
+			g.yaxis-group
 				line.axisY
 				line.tickY
 				g
 					text.tickY-label 
-			g.grid-node
+			g.grid-group
 				line.gridX
 				line.gridY
-
  */
 
 d3.gantt = function() {
@@ -200,18 +199,18 @@ d3.gantt = function() {
 		var chartnode = getChartnode();
 
 		// create y axis node if it not exists
-		var yAxisnode = chartnode.select("g.yaxis-node");
+		var yAxisnode = chartnode.select("g.yaxis-group");
 		categoryAxisRenderer.draw(yAxisnode);
 
     	// build x axis
-		var xAxisnode = chartnode.select("g.xaxis-node");
+		var xAxisnode = chartnode.select("g.xaxis-group");
 		xAxisnode.attr("transform", "translate(0, " + getChartHeight() + ")")
 
 		timeAxisRenderer.draw(xAxisnode)
     }
 
     var drawGrid = function(){
-		var gridnode = getChartnode().select("g.grid-node")
+		var gridnode = getChartnode().select("g.grid-group")
 
 		// draw x axis grid lines
 		gridnode.selectAll("line.gridX").remove();
@@ -250,9 +249,9 @@ d3.gantt = function() {
 			.attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
 		// add nodeing elements for graph components
-		var gridnode = chartnode.append("g").attr("class","grid-node");
-		var yAxisnode = chartnode.append("g").attr("class", "yaxis-node");
-		var xAxisnode = chartnode.append("g").attr("class", "xaxis-node")
+		var gridnode = chartnode.append("g").attr("class","grid-group");
+		var yAxisnode = chartnode.append("g").attr("class", "yaxis-group");
+		var xAxisnode = chartnode.append("g").attr("class", "xaxis-group")
 		var barnode = chartnode.append("g").attr("class", "gantt-bars");
     }
 
