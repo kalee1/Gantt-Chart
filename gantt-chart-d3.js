@@ -135,8 +135,8 @@ d3.gantt = function() {
     	var handlers = eventHandlers[objectType];
     	for(h in handlers){
     		selection.on(h,function(d){ 
+    				// if there's a handler for current eventHandlers
     			if(eventHandlers[objectType].hasOwnProperty(h)){
-    				// if there's a handler for current event
     				eventHandlers[objectType][h](d);
     			}
     		})
@@ -381,8 +381,8 @@ d3.gantt = function() {
 		 .attr("transform", taskBarTransform)
 	     .call(assignEvent, "task");
 
-
-		taskRenderer.calculateBarWidth(calculateBarWidth).draw(node);
+	    // draw tasks
+	    taskRenderer.calculateBarWidth(calculateBarWidth).draw(node);
 
 
 /*
