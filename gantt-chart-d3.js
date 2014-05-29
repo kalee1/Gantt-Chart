@@ -506,10 +506,10 @@ d3.gantt = function() {
 		return gantt;
 	};
 	
-	gantt.milestoneRenderer = function(value){
+	gantt.msRenderer = function(value){
 		if (!arguments.length)
-		    return milestoneRenderer;
-		milestoneRenderer = value;
+		    return msRenderer;
+		msRenderer = value;
 		return gantt;
 	};
 
@@ -681,7 +681,7 @@ d3.categoryAxisRenderer = function(){
 			if (hasOwnProperty(d, "date")){
 				// milestone
 		    	var categoryMsRange = getCategoryMileStonesRange(d.category)
-		    	var ypos = categoryMsRange[0] + config.mileStoneHeight/2;
+		    	var ypos = categoryMsRange[0] + config.mileStoneHeight - 6;
 			} else{
 				// invalid object type
 				return null;

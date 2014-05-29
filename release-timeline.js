@@ -90,6 +90,7 @@ d3.releaseTimeline = function(){
 		if (!arguments.length)
 		    return deployments;
 		deployments = value;
+
 		var deps = createMSsFromDeployment(deployments)
 		gantt.mileStones(deps);
 
@@ -182,6 +183,8 @@ d3.releaseTimeline = function(){
 		// add today as dateline
 		var todayDateline = {"date": new Date()};
 		datelines.push(todayDateline);
+		gantt.msRenderer(d3.deployRenderer())
+		gantt.categoryAxisRenderer().configValue("mileStoneHeight",45)
 		gantt.dateLines(datelines);
 	}
 
@@ -203,3 +206,77 @@ d3.releaseTimeline = function(){
     return releaseTimeline;
 };
 
+
+/*
+	Overrides default milestone renderer
+ 	to draw milestone labels vertically oriented
+*/
+
+d3.deployRenderer = function(){
+
+	var config = {
+		"mileStoneRadius":2
+	};
+
+    var assignEvent = function (selection){
+    	for(h in eventHandlers){
+    		selection.on(h,eventHandlers[h]);
+    	}
+    }
+
+	/* Draws taks bars hanging on the svg node passed as parameter */
+	msRenderer.draw  = function( node ){
+ 		// add milestone mark
+    	node.append("circle")
+    		.attr("cx",0)
+    		.attr("cy","0")
+			.attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-mark"; else return "milestone-mark";})
+			.attr("style",function (d) { return d.style;})
+    		.attr("r",config.mileStoneRadius)
+    		.call(assignEvent);
+
+		// add labels
+		node.append("rect")
+ 		 .attr("x",  -1*(config.mileStoneRadius+2))
+		 .attr("y", -38)
+		 .attr("height", 34)
+		 .attr("width", 12)
+	     .attr("style","fill:white;");
+
+		node.append("text")
+			.attr("x",  config.mileStoneRadius)
+			.attr("y",  -38)
+			.attr("style","writing-mode: tb; glyph-orientation-vertical: 90;")
+			// .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-label"; else return "milestone-label";})
+			.text(function(d){ return d.label;})
+	}
+
+	/* PRIVATE METHODS */
+
+	/* GETTER / SETTER METHODS */
+
+	msRenderer.eventHandlers = function(value){
+		if (!arguments.length)
+		    return eventHandlers;
+		eventHandlers = value;
+		return msRenderer;
+	}
+
+	msRenderer.config = function(value) {
+		if (!arguments.length)
+		    return config;
+		// copy values in config object
+		for(var k in config) config[k]=value[k];
+		return msRenderer;
+    };
+
+	msRenderer.configValue = function(property, value) {
+		config[property]=value;
+		return msRenderer;
+    };
+
+	function msRenderer(){
+	};
+	
+	return msRenderer;
+}
