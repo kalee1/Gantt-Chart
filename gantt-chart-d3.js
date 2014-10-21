@@ -156,7 +156,6 @@ d3.gantt = function() {
 		    timeDomainEnd = tasks.reduce( function(a,b) { return a.endDate > b.endDate ? a : b } ).endDate;
 		    timeAxisRenderer.domain([timeDomainStart, timeDomainEnd]).init();
 		}
-		console.log("Time domain: [" + timeDomainStart + "," + timeDomainEnd + "]")
     };
 
     var calculateCategories = function(tasks){
@@ -556,7 +555,6 @@ d3.timeAxisRenderer = function(){
 
 	/* Calculates categories ranges */
 	timeAxisRenderer.init  = function(){	
-		console.log(config.axisLength)
 		x = d3.time.scale().domain([ timeDomain[0], timeDomain[1] ]).range([ 0, config.axisLength ]).clamp(true);
 		var formatter = d3.time.format(new String(formatPattern));
 		xAxis = d3.svg.axis().scale(x).orient("bottom").tickSubdivide(true).tickSize(8).tickPadding(8).tickFormat(formatter);
