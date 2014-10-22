@@ -128,8 +128,8 @@ d3.gantt = function() {
 		Selects root chart "g" node for current gantt chart.
 	*/
     var getChartnode = function() {
-		var chartnode = d3.select("body").selectAll("svg").data([id], function(d){ return d;}).selectAll(".gantt-chart");
-		return chartnode;
+      var chartnode = d3.select("body").selectAll("svg").data([id], function(d){ return d;}).selectAll(".gantt-chart");
+      return chartnode;
     }
 
     var assignEvent = function (selection, objectType){
@@ -195,17 +195,17 @@ d3.gantt = function() {
     }
 
     var renderAxis = function() {
-		var chartnode = getChartnode();
+      var chartnode = getChartnode();
 
-		// create y axis node if it not exists
-		var yAxisnode = chartnode.select("g.yaxis-group");
-		categoryAxisRenderer.draw(yAxisnode);
+      // create y axis node if it not exists
+      var yAxisnode = chartnode.select("g.yaxis-group");
+      categoryAxisRenderer.draw(yAxisnode);
 
-    	// build x axis
-		var xAxisnode = chartnode.select("g.xaxis-group");
-		xAxisnode.attr("transform", "translate(0, " + getChartHeight() + ")")
-
-		timeAxisRenderer.draw(xAxisnode)
+      // build x axis
+      var xAxisnode = chartnode.select("g.xaxis-group");
+      xAxisnode.attr("transform", "translate(0, " + getChartHeight() + ")")
+      timeAxisRenderer.draw(xAxisnode)
+      xAxisnode.selectAll(".tick").classed('minor',function(d) { return d.getMonth()})
     }
 
     var drawGrid = function(){
@@ -549,15 +549,14 @@ d3.timeAxisRenderer = function(){
 	};
 	var x = null;
 	var xAxis = null;
-    var formatPattern = "%d/%b";
+  var formatter = d3.time.format('%d%b');
 
 	/* PUBLIC METHODS */
 
 	/* Calculates categories ranges */
 	timeAxisRenderer.init  = function(){	
 		x = d3.time.scale().domain([ timeDomain[0], timeDomain[1] ]).range([ 0, config.axisLength ]).clamp(true);
-		var formatter = d3.time.format(new String(formatPattern));
-		xAxis = d3.svg.axis().scale(x).orient("bottom").tickSubdivide(true).tickSize(8).tickPadding(8).tickFormat(formatter);
+		xAxis = d3.svg.axis().scale(x).orient("bottom").tickSubdivide(true).tickSize(14).tickPadding(3).tickFormat(formatter);
 	}
 
 	timeAxisRenderer.ticks = function(){
@@ -567,11 +566,16 @@ d3.timeAxisRenderer = function(){
 	}
 	/* Calculates object rendering position in axis */
 	timeAxisRenderer.position = function(d){
-		return x(d)
+		return x(d) + 2;
 	}
 	/* Draws axis hanging on the svg node passed as parameter */
 	timeAxisRenderer.draw  = function(node){
-		node.transition().call(xAxis);
+		node.transition().call(xAxis).selectAll('text')
+        .attr('transform', function(d) {
+          var xOffset = 3 + this.getBBox().width/2;
+          var yOffset = 5 - this.getBBox().height;
+          return 'translate('+xOffset+','+yOffset+')';
+        });
 	}
 
 	/* PRIVATE METHODS */
@@ -599,10 +603,10 @@ d3.timeAxisRenderer = function(){
     };
 
     timeAxisRenderer.tickFormat = function(value) {
-		if (!arguments.length)
-	    	return formatPattern;
-		formatPattern = value;
-		return timeAxisRenderer;
+      if (!arguments.length)
+        return formatter;
+      formatter = value;
+      return timeAxisRenderer;
     };
 
 	function timeAxisRenderer(){
