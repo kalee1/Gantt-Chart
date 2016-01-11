@@ -1,130 +1,217 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en-us">
   <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Gantt-Chart : D3 Gantt Chart" />
-
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Gantt-Chart</title>
+    <meta charset="UTF-8">
+    <title>Gantt-Chart by gusriobr</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
-
   <body>
+    <section class="page-header">
+      <h1 class="project-name">Gantt-Chart</h1>
+      <h2 class="project-tagline">D3 Gantt Chart</h2>
+      <a href="https://github.com/gusriobr/Gantt-Chart" class="btn">View on GitHub</a>
+      <a href="https://github.com/gusriobr/Gantt-Chart/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/gusriobr/Gantt-Chart/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/dk8996/Gantt-Chart">View on GitHub</a>
+    <section class="main-content">
+      <h2>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction</h2>
 
-          <h1 id="project_title">Gantt-Chart</h1>
-          <h2 id="project_tagline">D3 Gantt Chart</h2>
+<p>A basic implementation of a Gantt Chart using D3.js based on the work of <a href="https://github.com/dk8996/Gantt-Chart">Dimitry Kudryavtsev</a>.</p>
 
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/dk8996/Gantt-Chart/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/dk8996/Gantt-Chart/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-    
-    <div style="bottom: 10px; left: 10px; top: 10px; pointer-events: auto;">
-    <iframe src="http://ghbtns.com/github-btn.html?user=dk8996&repo=Gantt-Chart&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
-    <iframe src="http://ghbtns.com/github-btn.html?user=dk8996&repo=Gantt-Chart&type=fork&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+<p><strong>New features:</strong></p>
 
-    <a href="http://twitter.com/share" class="twitter-share-button" data-text="D3 Gantt Chart" data-url="http://dk8996.github.com/Gantt-Chart"></a>
-    <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
-    </div>
+<ul>
+<li>Adds new model elements: milestone and datelines. New attributes added to task element: id, label, style and CSS classname.</li>
+<li>Axis rendering is refactored and extracted to new clases.</li>
+<li>Redraw method has been removed, only draw method is needed to render and re-render data.</li>
+<li>Gantt chart now handles task overlapping and dynamically resizes category axis tick ranges.</li>
+<li>Chart height and width are calculated from X,Y axis domaing lenght.</li>
+<li>Style and CSS class name can be provided on tasks, milestones and datelines.</li>
+<li>When a task bar not totally fits on current time domain, it is drawn partially.</li>
+<li>Adds axis grid line drawing functionallity.</li>
+<li>svg element structure refactoring, axis, grid and graph components are now grouped under "g" elements, and  a CSS selector is defined for each group/element, so styling can easily be overrided.</li>
+<li>Includes methods to assign event handlers on tasks, milestones and datelines user actions.</li>
+<li>Multiple charts can be presented in a same page.</li>
+<li>Progress percentage can be assigned to each task, a bar within task rectangle is drawn to show it.</li>
+</ul>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-    
-      <section id="main_content" class="inner">
-        <h2>Introduction</h2>
-        <img src="https://raw.github.com/dk8996/Gantt-Chart/master/examples/screenshot1.png" alt="D3 Gantt Chart" height="400" width="42">
-        <h2>Examples</h2>
-        <p>This is a basic example of the Gantt Chart.<a href="http://bl.ocks.org/dk8996/5449641">Example 1</a></p>
-        <p>This show dynamic capabilities when adding new task to the Gantt Chart.<a href="http://bl.ocks.org/dk8996/5534835">Example 2</a></p>
-        <p>This examples shows how you can have a fixed time domain.<a href="http://bl.ocks.org/dk8996/5538271">Example 3</a></p>
-        <h2>Getting Started</h2>
+<h2>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Started</h2>
 
-<h3>Data</h3>
+<h3>
+<a id="data-categories-task-milestones-and-datelines" class="anchor" href="#data-categories-task-milestones-and-datelines" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data: Categories, Task, Milestones and Datelines</h3>
 
-<p>Create a array of all your data.</p>
+<p>The Gantt chart handles four elements to represent data:</p>
 
-<div class="highlight"><pre><span class="kd">var</span> <span class="nx">tasks</span> <span class="o">=</span> <span class="p">[</span>
+<ul>
+<li><p><strong>Category</strong>: category elements group tasks and define vertical axis items. Each tasks must necessarily have a category. Each category is defined using a string representing its name, ex: <em>"Project A"</em>.
+Categories can be setted on gantt chart using the <code>categories( array )</code> method, but if they aren't provided, the gantt chart will deduce them from categories used in the provided tasks.<br>
+If you call the categories method with a string array, the gantt chart will draw in the category axis one item for each item in the passed array, despite a category could have no related tasks.</p></li>
+<li><p><strong>Task</strong>: is the basic element to assign information to a period of time. It is drawn using a rectangle bar. A task has these attributes:</p></li>
+</ul>
 
-<span class="p">{</span>
-    <span class="s2">"startDate"</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="s2">"Sun Dec 09 01:36:45 EST 2012"</span><span class="p">),</span>
-    <span class="s2">"endDate"</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="s2">"Sun Dec 09 02:36:45 EST 2012"</span><span class="p">),</span>
-    <span class="s2">"taskName"</span><span class="o">:</span> <span class="s2">"E Job"</span><span class="p">,</span>
-    <span class="s2">"status"</span><span class="o">:</span> <span class="s2">"FAILED"</span>
-<span class="p">},</span>
-
-<span class="p">{</span>
-    <span class="s2">"startDate"</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="s2">"Sun Dec 09 04:56:32 EST 2012"</span><span class="p">),</span>
-    <span class="s2">"endDate"</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="s2">"Sun Dec 09 06:35:47 EST 2012"</span><span class="p">),</span>
-    <span class="s2">"taskName"</span><span class="o">:</span> <span class="s2">"A Job"</span><span class="p">,</span>
-    <span class="s2">"status"</span><span class="o">:</span> <span class="s2">"RUNNING"</span>
-<span class="p">}];</span>
-
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> task <span class="pl-k">=</span> {
+  <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>,          <span class="pl-c">// unique task identifier</span>
+  <span class="pl-s"><span class="pl-pds">"</span>label<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>task1<span class="pl-pds">"</span></span>,   <span class="pl-c">// descriptive text to show within task bar</span>
+  <span class="pl-s"><span class="pl-pds">"</span>category<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Project A<span class="pl-pds">"</span></span>,
+  <span class="pl-s"><span class="pl-pds">"</span>startDate<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">8</span>,<span class="pl-c1">10</span>),
+  <span class="pl-s"><span class="pl-pds">"</span>endDate<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">8</span>,<span class="pl-c1">13</span>),
+  <span class="pl-s"><span class="pl-pds">"</span>progress<span class="pl-pds">"</span></span><span class="pl-k">:</span> [<span class="pl-c1">0</span>,<span class="pl-c1">1</span>]   <span class="pl-c">// % of taks completion (optional)</span>
+  <span class="pl-s"><span class="pl-pds">"</span>style<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>fill:red<span class="pl-pds">"</span></span>,      <span class="pl-c">// style to apply to task bar (optional)</span>
+  <span class="pl-s"><span class="pl-pds">"</span>class<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>completedTask<span class="pl-pds">"</span></span>  <span class="pl-c">// CSS class to apply to task bar (optional)</span>
+};
 </pre></div>
 
-<h3>Style</h3>
+<p><em>Note: needless to say, only one of the styling attributes should be used, style or class.</em></p>
 
-<p>Create a map between task status and css class, this is optional.</p>
+<ul>
+<li>
+<strong>Milestones</strong>: they define events or information related to a specific day. These elements are represented with a circle mark with their corresponding label next to them. Each milestone has this information:</li>
+</ul>
 
-<div class="highlight"><pre><span class="kd">var</span> <span class="nx">taskStatus</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"SUCCEEDED"</span><span class="o">:</span> <span class="s2">"bar"</span><span class="p">,</span>
-    <span class="s2">"FAILED"</span><span class="o">:</span> <span class="s2">"bar-failed"</span><span class="p">,</span>
-    <span class="s2">"RUNNING"</span><span class="o">:</span> <span class="s2">"bar-running"</span><span class="p">,</span>
-    <span class="s2">"KILLED"</span><span class="o">:</span> <span class="s2">"bar-killed"</span>
-<span class="p">};</span>
-</pre></div>
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> milestone <span class="pl-k">=</span> {
+  <span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>,                <span class="pl-c">// unique task identifier</span>
+  <span class="pl-s"><span class="pl-pds">"</span>label<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>deployment 1<span class="pl-pds">"</span></span>,   <span class="pl-c">// descriptive text to show next to milestone mark</span>
+  <span class="pl-s"><span class="pl-pds">"</span>category<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>Project B<span class="pl-pds">"</span></span>,  <span class="pl-c">// category to which milestone belongs</span>
+  <span class="pl-s"><span class="pl-pds">"</span>date<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">7</span>),
+  <span class="pl-s"><span class="pl-pds">"</span>style<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>color:blue<span class="pl-pds">"</span></span>,    <span class="pl-c">// (optional)</span>
+  <span class="pl-s"><span class="pl-pds">"</span>class<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>staging_deploy<span class="pl-pds">"</span></span> <span class="pl-c">// (optional)</span>
+};</pre></div>
 
-<div class="highlight"><pre>  <span class="nc">.bar</span> <span class="p">{</span>
-      <span class="n">fill</span><span class="o">:</span> <span class="m">#33b5e5</span><span class="p">;</span>
-  <span class="p">}</span>
+<ul>
+<li>
+<strong>Datelines</strong>: these elements let the user draw a line in the gantt chart to point a relevant day. Each dateline has this information:</li>
+</ul>
 
-  <span class="nc">.bar-failed</span> <span class="p">{</span>
-    <span class="n">fill</span><span class="o">:</span> <span class="m">#CC0000</span><span class="p">;</span>
-  <span class="p">}</span>
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> dateline <span class="pl-k">=</span> {
+  <span class="pl-s"><span class="pl-pds">"</span>date<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">8</span>),
+  <span class="pl-s"><span class="pl-pds">"</span>style<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>stroke:rgb(255,0,0);stroke-width:2<span class="pl-pds">"</span></span>, <span class="pl-c">// (optional)</span>
+  <span class="pl-s"><span class="pl-pds">"</span>class<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>project_deadline<span class="pl-pds">"</span></span> <span class="pl-c">// (optional)</span>
+};</pre></div>
 
-  <span class="nc">.bar-running</span> <span class="p">{</span>
-      <span class="n">fill</span><span class="o">:</span> <span class="m">#669900</span><span class="p">;</span>
-  <span class="p">}</span>
+<p>To assign this information to the gantt chart, you have to call the appropiate setter before the <code>draw</code> method is called. </p>
 
-  <span class="nc">.bar-succeeded</span> <span class="p">{</span>
-    <span class="n">fill</span><span class="o">:</span> <span class="m">#33b5e5</span><span class="p">;</span>
-  <span class="p">}</span>
+<h3>
+<a id="creating-a-simple-gantt-chart" class="anchor" href="#creating-a-simple-gantt-chart" aria-hidden="true"><span class="octicon octicon-link"></span></a>Creating a simple gantt chart</h3>
 
-  <span class="nc">.bar-killed</span> <span class="p">{</span>
-      <span class="n">fill</span><span class="o">:</span> <span class="m">#ffbb33</span><span class="p">;</span>
-  <span class="p">}</span>
-</pre></div>
+<div class="highlight highlight-source-js"><pre><span class="pl-k">var</span> categories <span class="pl-k">=</span> [ <span class="pl-s"><span class="pl-pds">"</span>Project A<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Project B<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>Project C<span class="pl-pds">"</span></span>]
 
-<h3>Task Names</h3>
+<span class="pl-k">var</span> tasks <span class="pl-k">=</span> [
+  {<span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>category<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>Project A<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>label<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>task1<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>startDate<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">2</span>),<span class="pl-s"><span class="pl-pds">"</span>endDate<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">5</span>), <span class="pl-s"><span class="pl-pds">"</span>progress<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">0.15</span>},
+  {<span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>11<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>category<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>Project A<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>label<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>task1.1<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>startDate<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">3</span>),<span class="pl-s"><span class="pl-pds">"</span>endDate<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">5</span>)},
+  {<span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>2<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>category<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>Project A<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>label<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>task2<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>startDate<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">4</span>),<span class="pl-s"><span class="pl-pds">"</span>endDate<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">8</span>), <span class="pl-s"><span class="pl-pds">"</span>progress<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">0.35</span>},
+  {<span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>21<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>category<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>Project A<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>label<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>task2.1<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>startDate<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">7</span>),<span class="pl-s"><span class="pl-pds">"</span>endDate<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">8</span>), <span class="pl-s"><span class="pl-pds">"</span>progress<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">0.75</span>},
+  {<span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">"</span>3<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>category<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>Project B<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>label<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>task3<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>startDate<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">10</span>),<span class="pl-s"><span class="pl-pds">"</span>endDate<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">12</span>), <span class="pl-s"><span class="pl-pds">"</span>progress<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">0.6</span>}
+];
 
-<p>Create a array of task names, they will be display on they y-axis in the order given to the array.</p>
+<span class="pl-k">var</span> milestones <span class="pl-k">=</span> [
+    {<span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">1</span>,<span class="pl-s"><span class="pl-pds">"</span>category<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>Project A<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>label<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>deployment 1<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>date<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">7</span>)},
+    {<span class="pl-s"><span class="pl-pds">"</span>id<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-c1">2</span>,<span class="pl-s"><span class="pl-pds">"</span>category<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>Project B<span class="pl-pds">"</span></span>, <span class="pl-s"><span class="pl-pds">"</span>label<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s"><span class="pl-pds">"</span>deployment 2<span class="pl-pds">"</span></span>,<span class="pl-s"><span class="pl-pds">"</span>date<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">3</span>)}
+];
 
-<div class="highlight"><pre><span class="kd">var</span> <span class="nx">taskNames</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">"D Job"</span><span class="p">,</span> <span class="s2">"P Job"</span><span class="p">,</span> <span class="s2">"E Job"</span><span class="p">,</span> <span class="s2">"A Job"</span><span class="p">,</span> <span class="s2">"N Job"</span> <span class="p">];</span>
-</pre></div>
 
-<h3>Create a Simple Gantt-Chart</h3>
+<span class="pl-k">var</span> datelines <span class="pl-k">=</span> [
+  {<span class="pl-s"><span class="pl-pds">"</span>date<span class="pl-pds">"</span></span><span class="pl-k">:</span> <span class="pl-k">new</span> <span class="pl-en">Date</span>(<span class="pl-c1">2014</span>,<span class="pl-c1">1</span>,<span class="pl-c1">8</span>)}
+];
 
-<p>Create a simple Gantt-Chart</p>
+<span class="pl-k">var</span> gantt <span class="pl-k">=</span> <span class="pl-smi">d3</span>.<span class="pl-en">gantt</span>().<span class="pl-en">categories</span>(categories)
+  .<span class="pl-en">tasks</span>(tasks)
+  .<span class="pl-en">mileStones</span>(milestones)
+  .<span class="pl-en">dateLines</span>(datelines)
+  .<span class="pl-en">draw</span>();</pre></div>
 
-<div class="highlight"><pre><span class="kd">var</span> <span class="nx">gantt</span> <span class="o">=</span> <span class="nx">d3</span><span class="p">.</span><span class="nx">gantt</span><span class="p">().</span><span class="nx">taskTypes</span><span class="p">(</span><span class="nx">taskNames</span><span class="p">).</span><span class="nx">taskStatus</span><span class="p">(</span><span class="nx">taskStatus</span><span class="p">);</span>
-<span class="nx">gantt</span><span class="p">(</span><span class="nx">tasks</span><span class="p">);</span>
-</pre></div>
+<p>The complete example can be found in <a href="https://github.com/gusriobr/Gantt-Chart/blob/master/examples/example1.html">example1</a>.</p>
 
-<h2>Dependencies &amp; Building</h2>
+<p><img src="https://raw.github.com/gusriobr/Gantt-Chart/master/examples/example1.png" alt="screenshot"></p>
+
+<h3>
+<a id="styling" class="anchor" href="#styling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Styling</h3>
+
+<p>Svg components are grouped using "g" elements to easily select appropiated elements in rendering operations. This selection is made using tag.classname CSS selectors. Each element type has its own css class name, so users can override styling according to their needs.
+This is the element and css classname structure. </p>
+
+<pre><code>  svg.chart
+    g.gantt-chart
+      g.grid-group [1]
+        line.gridX [0,*]
+        line.gridY [0,*]
+      g.xaxis-group [1]
+        path.domain [1]
+        line.tickX minor [0,*]
+        g.tickX major [0,*]
+          line [1]
+          text [1]
+      g.yaxis-group [1]
+        line.axisY [1]
+        line.tickY  [0,*]
+        g [0,*]
+          text.tickY-label [0,*]
+      g.gantt-bars [1]
+        g.g_task [0,*]
+          text.task-bar [1]
+          rect.task-progress-bar [1]
+          text.task-label [1]
+        g.g_mileStone [0,*]
+          circle.milestone-mark [1]
+          text.milestone-label [1]
+        g.g_dateline [0,*]
+          line.dateline-line [1]
+          text.dateline-label [1]
+</code></pre>
+
+<p>The number next to class name indicates the number of times the element can appear. For example, <code>text.dateline-label</code> can be found multiple times under the <code>g.g_dateline element</code>, but there is just one <code>g.g_dateline element</code> in the svg chart.</p>
+
+<p>Gantt chart comes with a default styling implementation that can be found in <a href="https://github.com/gusriobr/Gantt-Chart/blob/master/gantt-chart-d3.css">gantt-chart-d3.css</a>.</p>
+
+<h3>
+<a id="chart-height-and-width" class="anchor" href="#chart-height-and-width" aria-hidden="true"><span class="octicon octicon-link"></span></a>Chart height and width</h3>
+
+<p>You can set the height and width of the gantt chart using the gantt.height() and gantt.width() methods.
+If these values aren't provided, the gantt chart is drawn using these default values:</p>
+
+<ul>
+<li>height: as much length as needed to draw the category axis. </li>
+<li>width: body.clientWidht</li>
+</ul>
+
+<p>The category axis lanes length are calculated dynamically using provided tasks. When two tasks are overlapped, the gantt chart will draw the later task under the overlapped task, and the corresponding category axis lane will be expanded to fit the two parallel tasks width. There's no limit in the number of parallel task to draw.
+To change this behaviour (for example to define overlapping based on task relation in addition to time constraints, or to set a fixed length for each category lane), provide a different implementation of <code>overlappingResolver</code> class.</p>
+
+<p>You can modify the category lane length calculation modifying the <code>categoryAxisRenderer.config</code> parameters (bar padding, task bar height, margins, task bar minimun height, ...).</p>
+
+<h3>
+<a id="event-handling" class="anchor" href="#event-handling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Event handling</h3>
+
+<p>Gannt chart provides methods to establish handlers to treat user actions on task bars, milestones marks and datelines. Each object type has its own method:
+'''javascript
+    gantt.taskEventHandler(event, handler)
+    gantt.milestoneEventHandler(event, handler)
+    gantt.datelineEventHandle(event, handler)
+ '''
+Where <em>event</em>, is a string event type, such as "click", "mouseover", etc. It defines the event that will be catched by the handler, and <em>handler</em> is a js function that receives as parameter the object model in which user has executed an action.</p>
+
+<p>So to handle click events on tasks, just code:</p>
+
+<div class="highlight highlight-source-js"><pre>
+<span class="pl-smi">gantt</span>.<span class="pl-en">taskEventHandler</span>(<span class="pl-s"><span class="pl-pds">'</span>click<span class="pl-pds">'</span></span>, <span class="pl-k">function</span> (<span class="pl-smi">t</span>){
+  <span class="pl-en">console</span>.<span class="pl-c1">log</span>(<span class="pl-s"><span class="pl-pds">"</span>this is the task you clicked <span class="pl-pds">"</span></span> <span class="pl-k">+</span> <span class="pl-smi">t</span>.<span class="pl-c1">label</span>);
+})</pre></div>
+
+<h2>
+<a id="dependencies--building" class="anchor" href="#dependencies--building" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dependencies &amp; Building</h2>
 
 <p>Relies on the fantastic <a href="http://mbostock.github.com/d3/">D3 visualization library</a> to do lots of the heavy lifting for stacking and rendering to SVG.</p>
 
-<h2>License</h2>
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
 
-<p>Copyright 2012 Dimitry Kudryavtsev</p>
+<p>Copyright 2014 Gustavo Río Briones</p>
 
 <p>Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -138,18 +225,16 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.</p>
-      </section>
-    </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Gantt-Chart maintained by <a href="https://github.com/dk8996">dk8996</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/gusriobr/Gantt-Chart">Gantt-Chart</a> is maintained by <a href="https://github.com/gusriobr">gusriobr</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
-    </div>
 
-              <script type="text/javascript">
+    </section>
+
+            <script type="text/javascript">
             var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
             document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
           </script>
