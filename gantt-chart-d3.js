@@ -56,7 +56,7 @@ d3.gantt = function() {
     var timeDomainStart =null;
     var timeDomainEnd = null;
     var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
-    var tickFormat = "%d/%b"; // default tick format
+    var tickFormat = "%b %d"; // default tick format
 
     // model arrays
     var categories = [];
@@ -174,7 +174,7 @@ d3.gantt = function() {
     }
 
     var configureAxisDomain = function() {
-      timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(tickFormat).configValue("axisLength",getChartWidth())
+      timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(d3.time.format(tickFormat)).configValue("axisLength",getChartWidth())
       timeAxisRenderer.init();
 
       if(categories == null){
