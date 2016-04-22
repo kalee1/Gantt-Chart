@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Gantt Chart Example 3</title>
+<title>Gantt Chart Example 2</title>
  	<link type="text/css" href="../gantt-chart-d3.css" rel="stylesheet" />
 </head>
 <style>
@@ -13,6 +13,9 @@
 	fill: grey;
 }
 
+.chart {
+	height:1000px;
+}
 </style>
 <body>
 	<button type="button" onclick="addTask()">Add Task</button>
@@ -20,7 +23,7 @@
 	<button type="button" onclick="changeTimeformat('1day')">1 DAY</button>
 	<button type="button" onclick="changeTimeformat('1week')">1 WEEK</button>
 	<button type="button" onclick="changeTimeformat('1month')">1 MONTH</button>
-	<script type="text/javascript" src="../lib/d3/d3.v3.min.js"></script>
+	<script type="text/javascript" src="../lib/d3/d3.min.js"></script>
 	<script type="text/javascript" src="../gantt-chart-d3.js"></script>
 	<script type="text/javascript" src="example2.js"></script>
 </body>

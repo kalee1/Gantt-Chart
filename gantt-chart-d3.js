@@ -370,7 +370,7 @@ d3.gantt = function() {
 
     var resizeChart = function(){
       var svgElement = d3.select("body").select("svg").data([id], function(d){ return d;});
-      svgElement.style("height", (getChartHeight() + margin.top + margin.bottom));
+      svgElement.style("height", (getChartHeight() + margin.top + margin.bottom) + 'px');
     }
 
     /* GETTER / SETTER METHODS */
