@@ -966,7 +966,7 @@ d3.taskRenderer = function(){
   var config = {
     "axisLength": 600,
     "barHeight" : 15,
-    "progressBarHeight" : 5
+    "progressBarHeight" : 15
   };
   var eventAssigner = null;
   var calculateBarWidth = null;
