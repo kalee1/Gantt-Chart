@@ -56,7 +56,7 @@ d3.gantt = function() {
     var timeDomainStart =null;
     var timeDomainEnd = null;
     var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
-    var tickFormat = "%d/%b"; // default tick format
+    var tickFormat = "%b %d"; // default tick format
 
     // model arrays
     var categories = [];
@@ -174,7 +174,7 @@ d3.gantt = function() {
     }
 
     var configureAxisDomain = function() {
-      timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(tickFormat).configValue("axisLength",getChartWidth())
+      timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(d3.time.format(tickFormat)).configValue("axisLength",getChartWidth())
       timeAxisRenderer.init();
 
       if(categories == null){
@@ -370,7 +370,7 @@ d3.gantt = function() {
 
     var resizeChart = function(){
       var svgElement = d3.select("body").select("svg").data([id], function(d){ return d;});
-      svgElement.style("height", (getChartHeight() + margin.top + margin.bottom));
+      svgElement.style("height", (getChartHeight() + margin.top + margin.bottom) + 'px');
     }
 
     /* GETTER / SETTER METHODS */
@@ -966,7 +966,7 @@ d3.taskRenderer = function(){
   var config = {
     "axisLength": 600,
     "barHeight" : 15,
-    "progressBarHeight" : 5
+    "progressBarHeight" : 15
   };
   var eventAssigner = null;
   var calculateBarWidth = null;
