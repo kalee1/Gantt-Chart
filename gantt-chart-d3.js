@@ -55,7 +55,8 @@ d3.gantt = function() {
 
     var timeDomainStart =null;
     var timeDomainEnd = null;
-    var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
+    //var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
+	var timeDomainMode = FIXED_TIME_DOMAIN_MODE;
     var tickFormat = "%b %d"; // default tick format
 
     // model arrays
@@ -156,6 +157,11 @@ d3.gantt = function() {
         timeDomainEnd = tasks.reduce( function(a,b) { return a.endDate > b.endDate ? a : b } ).endDate;
         timeAxisRenderer.domain([timeDomainStart, timeDomainEnd]).init();
       }
+	  else {
+		  timeDomainStart = new Date(2020,10,1);
+		  timeDomainEnd = new Date(2021,9,30);
+		  timeAxisRenderer.domain([timeDomainStart, timeDomainEnd]).init();
+	  }
     };
 
     var calculateCategories = function(tasks){
@@ -683,7 +689,7 @@ d3.categoryAxisRenderer = function(){
       if (hasOwnProperty(d, "date")){
         // milestone
         var categoryMsRange = getCategoryMileStonesRange(d.category)
-        var ypos = categoryMsRange[0] + config.mileStoneHeight - 6;
+        var ypos = categoryMsRange[0] + config.mileStoneHeight-config.mileStoneHeight;
       } else{
         // invalid object type
         return null;
@@ -828,6 +834,7 @@ d3.categoryAxisRenderer = function(){
 d3.overlappingResolver = function(){
   var categories = [];
   var tasks = [];
+  var mstones = [];
   var range = [0,200];
   /* registers overlaps between tasks. Each item relates task's
      id with an array containg overlapped tasks id*/
@@ -846,6 +853,14 @@ d3.overlappingResolver = function(){
     tasks = value;
     overlaps = {};
     return overlappingResolver;
+  };
+
+  overlappingResolver.mstones = function(value){
+	if (!arguments.length)
+	  return mstones;
+	mstones = value;
+	overlaps = {};
+	return overlappingResolver;
   };
 
   /* Calculates de máx num of parallel task in a category */
@@ -1006,8 +1021,8 @@ d3.taskRenderer = function(){
 
     // add labels
     node.append("text")
-      .attr("y", function(d) { return 3 + config.barHeight /2; })
-      .attr("x", 5)
+      .attr("y", function(d) { return 4 + config.barHeight /2; })
+      .attr("x", function(d) { return calculateBarWidth(d) + 5;})
       .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "task-label";})
       .text(function(d){ return d.label;})
   }

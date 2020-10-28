@@ -4,35 +4,35 @@
 }
 
 .task-bar {
-	fill: #FF8B00;
+	fill: #0076b8;
 }
 
 .task-progress-bar {
-	fill: #64AAD0;
+	fill: #45b649;
 }
 
 .task-bar:hover {
-	fill: #FFBF73;
-	stroke: #64AAD0;
+	fill: #0076b8;
+	stroke: #0076b8;
 }
 
 .task-label {
-	fill: #034569;
+	fill: black;
 }
 
 .milestone-mark {
-	stroke: #64AAD0;
-	fill: #64AAD0;
+	stroke: #0076b8;
+	fill: #0076b8;
 	stroke-width: 2;
 }
 
 .milestone-label {
-	fill: #034569;
+	fill: black;
 }
 
 .dateline-line {
-	stroke: red;
-	stroke-width: 2;
+	stroke: blue;
+	stroke-width: 1;
 }
 
 .dateline-label{
