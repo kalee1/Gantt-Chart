@@ -57,7 +57,7 @@ d3.gantt = function() {
     var timeDomainEnd = null;
     //var timeDomainMode = FIT_TIME_DOMAIN_MODE;// fixed or fit
 	var timeDomainMode = FIXED_TIME_DOMAIN_MODE;
-    var tickFormat = "%b %d"; // default tick format
+    var tickFormat = "%b %Y"; // default tick format
 
     // model arrays
     var categories = [];
@@ -158,8 +158,8 @@ d3.gantt = function() {
         timeAxisRenderer.domain([timeDomainStart, timeDomainEnd]).init();
       }
 	  else {
-		  timeDomainStart = new Date(2020,10,1);
-		  timeDomainEnd = new Date(2021,9,30);
+		  timeDomainStart = new Date(2020,9,1);
+		  timeDomainEnd = new Date(2021,8,30);
 		  timeAxisRenderer.domain([timeDomainStart, timeDomainEnd]).init();
 	  }
     };
@@ -180,7 +180,7 @@ d3.gantt = function() {
     }
 
     var configureAxisDomain = function() {
-      timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(d3.time.format(tickFormat)).configValue("axisLength",getChartWidth())
+      timeAxisRenderer.domain([ timeDomainStart, timeDomainEnd ]).tickFormat(d3.timeFormat(tickFormat)).configValue("axisLength",getChartWidth())
       timeAxisRenderer.init();
 
       if(categories == null){
@@ -555,14 +555,14 @@ d3.timeAxisRenderer = function(){
   };
   var x = null;
   var xAxis = null;
-  var formatter = d3.time.format('%d%b');
+  var formatter = d3.timeFormat('%d%Y');
 
   /* PUBLIC METHODS */
 
   /* Calculates categories ranges */
   timeAxisRenderer.init  = function(){
-    x = d3.time.scale().domain([ timeDomain[0], timeDomain[1] ]).range([ 0, config.axisLength ]).clamp(true);
-    xAxis = d3.svg.axis().scale(x).orient("bottom").tickSubdivide(true).tickSize(14).tickPadding(3).tickFormat(formatter);
+    x = d3.scaleTime().domain([ timeDomain[0], timeDomain[1] ]).range([ 0, config.axisLength ]).clamp(true);
+    xAxis = d3.axisBottom().scale(x).tickSize(14).tickPadding(3).tickFormat(formatter);
   }
 
   timeAxisRenderer.ticks = function(){
@@ -1081,7 +1081,6 @@ d3.msRenderer = function(){
   msRenderer.draw  = function( node ){
     // add milestone mark
 	var trianglePoints = '0 0,' + config.mileStoneHeight + ' 0, '+ config.mileStoneHeight/2 +' '+ config.mileStoneHeight + ', 0 0';
-	console.log(trianglePoints);
 	node.append('polygon')
       .attr('points', trianglePoints)
 	  .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class+ "-mark"; else return "milestone-mark";})
@@ -1154,7 +1153,7 @@ d3.datelineRenderer = function(){
       .attr("y",config.chartHeight + 5)
       .attr("class", function(d) {if(hasOwnProperty(d,"class")) return d.class + "-label"; else return "dateline-label";})
       .attr("style","writing-mode:tb")
-      .text(function (d) { var format = d3.time.format('%d/%m/%Y'); return format(d.date);})
+      .text(function (d) { var format = d3.timeFormat('%d/%m/%Y'); return format(d.date);})
   }
 
   /* PRIVATE METHODS */
