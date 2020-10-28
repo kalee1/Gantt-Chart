@@ -21,8 +21,9 @@
 }
 
 .milestone-mark {
-	stroke: #A65A00;
-	stroke-width: 3;
+	stroke: #64AAD0;
+	fill: #64AAD0;
+	stroke-width: 2;
 }
 
 .milestone-label {
@@ -49,4 +50,3 @@
 	stroke: #000;
 	shape-rendering: crispEdges;
 }
-
